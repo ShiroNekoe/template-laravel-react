@@ -2,50 +2,60 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Http\Controllers\Admin\ProductController;
+use App\Models\Product;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
-use App\Models\Product;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\DashboardController;
 
+/*
+|--------------------------------------------------------------------------
+| PUBLIC (USER)
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-});
-
-
-// Route::get('/', function () {
-//     return Inertia::render('Shop', [
-//         'products' => Product::all() 
-//     ]);
-// });
+Route::get('/', fn () => redirect()->route('shop'))->name('home');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::post('/cart', [CartController::class, 'store']);
-    Route::delete('/cart/{cartItem}', [CartController::class, 'destroy']);
-});
-
-// Product Detail
 Route::get('/product/{product}', function (Product $product) {
     return Inertia::render('ProductDetail', [
-        'product' => $product
+        'product' => $product,
     ]);
+})->name('product.show');
+
+/*
+|--------------------------------------------------------------------------
+| CART (HARUS LOGIN)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::put('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
 });
 
-// Admin (pastikan login user ada role admin)
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', fn() => Inertia::render('Admin/Dashboard'));
-    Route::resource('/products', ProductController::class);
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('dashboard');
+
+        Route::resource('/products', ProductController::class);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth'])->name('dashboard');
-
-
-
-// Auth & Settings
+/*
+|--------------------------------------------------------------------------
+| AUTH & SETTINGS
+|--------------------------------------------------------------------------
+*/
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

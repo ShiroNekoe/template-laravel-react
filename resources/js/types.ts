@@ -12,3 +12,10 @@ export type CartItem = {
     quantity: number;
     product: Product;
 };
+
+type AuthUser = {
+  id: number;
+  name: string;
+  email: string;
+  roles?: string[];
+} | null;

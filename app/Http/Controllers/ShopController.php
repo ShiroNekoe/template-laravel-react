@@ -8,35 +8,17 @@ use App\Models\Product;
 
 class ShopController extends Controller
 {
-     public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Admin/Products', [
-            'products' => Product::latest()->get()
+        $query = Product::query();
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', "%{$request->search}%");
+        }
+
+        return Inertia::render('Shop', [
+            'products' => $query->latest()->get(),
+            'search' => $request->search,
         ]);
-    }
-
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required',
-            'price' => 'required|integer',
-            'stock' => 'required|integer',
-            'description' => 'nullable'
-        ]);
-
-        Product::create($data);
-        return redirect()->back();
-    }
-
-    public function update(Request $request, Product $product)
-    {
-        $product->update($request->all());
-        return redirect()->back();
-    }
-
-    public function destroy(Product $product)
-    {
-        $product->delete();
-        return redirect()->back();
     }
 }

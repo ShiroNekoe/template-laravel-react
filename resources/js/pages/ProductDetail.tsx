@@ -1,34 +1,53 @@
-import { router } from "@inertiajs/react";
-import type { Product } from "@/types";
+import { Head, router, Link } from "@inertiajs/react";
 
-type Props = {
-  product: Product;
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
+  description?: string;
+  image?: string | null;
 };
 
-export default function ProductDetail({ product }: Props) {
-  function addToCart() {
-    router.post("/cart", { product_id: product.id });
-  }
-
+export default function ProductDetail({ product }: { product: Product }) {
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex flex-col md:flex-row gap-6">
+    <div className="max-w-4xl mx-auto p-6">
+      <Head title={product.name} />
+
+      <Link href={route("shop")} className="text-sm text-blue-600">
+        ← Kembali ke Shop
+      </Link>
+
+      <div className="grid md:grid-cols-2 gap-6 mt-4">
         <img
           src={product.image || "/placeholder.png"}
-          alt={product.name}
-          className="w-full md:w-1/2 h-64 object-cover rounded-lg"
+          className="w-full h-80 object-cover rounded-xl"
         />
-        <div className="flex-1 flex flex-col gap-4">
+
+        <div>
           <h1 className="text-2xl font-bold">{product.name}</h1>
-          <p className="text-gray-600">{product.description}</p>
-          <p className="text-xl font-semibold">Rp {product.price}</p>
-          <p>Stock: {product.stock}</p>
+          <p className="text-xl font-semibold mt-2">
+            Rp {product.price.toLocaleString()}
+          </p>
+
+          <p className="mt-3 text-muted-foreground">
+            {product.description || "Tidak ada deskripsi."}
+          </p>
+
+          <p className={`mt-2 ${product.stock === 0 ? "text-red-500" : ""}`}>
+            Stock: {product.stock}
+          </p>
 
           <button
-            onClick={addToCart}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            disabled={product.stock === 0}
+            onClick={() =>
+              router.post(route("cart.store"), { product_id: product.id })
+            }
+            className={`mt-4 px-4 py-2 rounded text-white ${
+              product.stock === 0 ? "bg-gray-400" : "bg-blue-600"
+            }`}
           >
-            Tambah ke Keranjang
+            Add to Cart
           </button>
         </div>
       </div>
