@@ -18,7 +18,7 @@ export default function Shop({ products, search = "" }: Props) {
   // Semua hooks ada di dalam component
   const { auth, cart } = usePage<{
     auth: { user: AuthUser };
-    cart: { id: number; qty: number; product: Product & { image?: string } }[];
+    cart: { id: number; quantity: number; product: Product & { image?: string } }[];
   }>().props;
 
   const isAdmin = !!auth?.user?.roles?.includes("admin");
@@ -44,18 +44,16 @@ export default function Shop({ products, search = "" }: Props) {
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/70 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center">
           {/* LOGO */}
-<Link
-  href={route("shop")}
-  className="flex items-center gap-3 min-w-fit"
->
-  <img
-    src="/LOGO TOKOLU.png"
-    alt="TokoLu"
-    className="h-14 w-auto object-contain drop-shadow-md hover:scale-105 transition"
-  />
-</Link>
-
-
+      <Link
+        href={route("shop")}
+        className="flex items-center gap-3 min-w-fit"
+      >
+        <img
+          src="/LOGO TOKOLU.png"
+          alt="TokoLu"
+          className="h-14 w-auto object-contain drop-shadow-md hover:scale-105 transition"
+        />
+      </Link>
           {/* SEARCH */}
           <div className="flex-1 flex justify-center px-10">
             <form onSubmit={handleSearch} className="w-full max-w-xl flex gap-2">
@@ -117,7 +115,7 @@ export default function Shop({ products, search = "" }: Props) {
                 <div className="flex-1">
                   <p className="text-sm font-semibold">{item.product.name}</p>
                   <p className="text-xs text-gray-500">
-                    {item.qty} x Rp {item.product.price.toLocaleString()}
+                    {item.quantity} x Rp {item.product.price.toLocaleString()}
                   </p>
                 </div>
               </div>
