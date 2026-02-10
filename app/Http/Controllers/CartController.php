@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\CartItem as Cart;
-use App\Models\Product;
+use App\Models\Product; 
 
 class CartController extends Controller
 {

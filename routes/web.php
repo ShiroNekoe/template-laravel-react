@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\Product;
 use App\Http\Controllers\ShopController;
@@ -23,6 +24,16 @@ Route::get('/product/{product}', function (Product $product) {
         'product' => $product,
     ]);
 })->name('product.show');
+
+Route::middleware('auth')->get('/settings', function () {
+    return Inertia::render('Settings');
+})->name('settings');
+
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect()->route('shop');
+})->name('logout');
+
 
 /*
 |--------------------------------------------------------------------------
