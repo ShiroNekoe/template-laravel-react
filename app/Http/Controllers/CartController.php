@@ -42,16 +42,17 @@ class CartController extends Controller
 }
 
 
-  public function update(Request $request, $id)
+    public function update(Request $request, \App\Models\CartItem $cartItem)
 {
-    $cart = Cart::where('user_id', auth()->id())->findOrFail($id);
+    abort_if($cartItem->user_id !== auth()->id(), 403);
 
     $data = $request->validate([
-        'qty' => 'required|integer|min:1'
+        'quantity' => 'required|integer|min:1',
     ]);
-    
 
-    $cart->update($data);
+    $cartItem->update([
+        'quantity' => $data['quantity'],
+    ]);
 
     return redirect()->back();
 }

@@ -13,23 +13,26 @@ type CartItem = {
 
 export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
   const total = cartItems.reduce(
-    (sum, item) => sum + item.product.price * (item.quantity ?? 1),
+    (sum, item) => sum + item.product.price * item.quantity,
     0
   );
 
+  function updateQty(id: number, qty: number) {
+    if (qty < 1) return;
 
-function updateQty(id: number, qty: number) {
-  if (qty < 1) return;
-
-  router.put(route("cart.update", id), 
-    { qty },
-    { preserveState: true, preserveScroll: true }
-  );
-}
-
+    router.put(
+      route("cart.update", id),
+      { quantity: qty }, // 🔥 HARUS quantity (match backend)
+      {
+        preserveScroll: true,
+      }
+    );
+  }
 
   function deleteItem(id: number) {
-    router.delete(route("cart.destroy", id), { preserveScroll: true });
+    router.delete(route("cart.destroy", id), {
+      preserveScroll: true,
+    });
   }
 
   return (
@@ -90,8 +93,10 @@ function updateQty(id: number, qty: number) {
                     <div className="flex items-center gap-3 mt-3">
                       {/* MINUS */}
                       <button
-                        onClick={() => updateQty(item.id, (item.quantity ?? 1) - 1)}
-                        disabled={(item.quantity ?? 1) <= 1}
+                        onClick={() =>
+                          updateQty(item.id, item.quantity - 1)
+                        }
+                        disabled={item.quantity <= 1}
                         className="w-9 h-9 flex items-center justify-center rounded-xl border border-blue-200 bg-white hover:bg-blue-100 transition font-bold disabled:opacity-40"
                       >
                         -
@@ -99,12 +104,14 @@ function updateQty(id: number, qty: number) {
 
                       {/* NUMBER */}
                       <span className="min-w-[44px] h-9 flex items-center justify-center font-bold text-blue-700 bg-blue-50 rounded-xl">
-                        {item.quantity ?? 1}
+                        {item.quantity}
                       </span>
 
                       {/* PLUS */}
                       <button
-                        onClick={() => updateQty(item.id, (item.quantity ?? 1) + 1)}
+                        onClick={() =>
+                          updateQty(item.id, item.quantity + 1)
+                        }
                         className="w-9 h-9 flex items-center justify-center rounded-xl border border-blue-200 bg-white hover:bg-blue-100 transition font-bold"
                       >
                         +
@@ -116,7 +123,7 @@ function updateQty(id: number, qty: number) {
                   <div className="text-right flex flex-col justify-between">
                     <p className="font-bold text-blue-900">
                       Rp{" "}
-                      {(item.product.price * (item.quantity ?? 1)).toLocaleString()}
+                      {(item.product.price * item.quantity).toLocaleString()}
                     </p>
 
                     <button
