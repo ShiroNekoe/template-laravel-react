@@ -2,7 +2,7 @@ import { router, Link, Head } from "@inertiajs/react";
 
 type CartItem = {
   id: number;
-  qty: number;
+  quantity: number;
   product: {
     id: number;
     name: string;
@@ -13,13 +13,13 @@ type CartItem = {
 
 export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
   const total = cartItems.reduce(
-    (sum, item) => sum + item.product.price * (item.qty ?? 1),
+    (sum, item) => sum + item.product.price * (item.quantity ?? 1),
     0
   );
 
   function updateQty(id: number, qty: number) {
     if (qty < 1) return;
-    router.put(route("cart.update", id), { qty }, { preserveScroll: true });
+    router.put(route("cart.update", id), { quantity: qty }, { preserveScroll: true });
   }
 
   function deleteItem(id: number) {
@@ -84,8 +84,8 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
                     <div className="flex items-center gap-3 mt-3">
                       {/* MINUS */}
                       <button
-                        onClick={() => updateQty(item.id, (item.qty ?? 1) - 1)}
-                        disabled={(item.qty ?? 1) <= 1}
+                        onClick={() => updateQty(item.id, (item.quantity ?? 1) - 1)}
+                        disabled={(item.quantity ?? 1) <= 1}
                         className="w-9 h-9 flex items-center justify-center rounded-xl border border-blue-200 bg-white hover:bg-blue-100 transition font-bold disabled:opacity-40"
                       >
                         -
@@ -93,12 +93,12 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
 
                       {/* NUMBER */}
                       <span className="min-w-[44px] h-9 flex items-center justify-center font-bold text-blue-700 bg-blue-50 rounded-xl">
-                        {item.qty ?? 1}
+                        {item.quantity ?? 1}
                       </span>
 
                       {/* PLUS */}
                       <button
-                        onClick={() => updateQty(item.id, (item.qty ?? 1) + 1)}
+                        onClick={() => updateQty(item.id, (item.quantity ?? 1) + 1)}
                         className="w-9 h-9 flex items-center justify-center rounded-xl border border-blue-200 bg-white hover:bg-blue-100 transition font-bold"
                       >
                         +
@@ -110,7 +110,7 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
                   <div className="text-right flex flex-col justify-between">
                     <p className="font-bold text-blue-900">
                       Rp{" "}
-                      {(item.product.price * (item.qty ?? 1)).toLocaleString()}
+                      {(item.product.price * (item.quantity ?? 1)).toLocaleString()}
                     </p>
 
                     <button
@@ -138,18 +138,16 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
               </div>
 
               <button
-  onClick={() => router.visit(route("checkout"))}
-  disabled={cartItems.length === 0}
-  className={`w-full mt-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 ${
-    cartItems.length === 0
-      ? "bg-gray-400 cursor-not-allowed"
-      : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
-  }`}
->
-  Lanjut ke Pembayaran
-</button>
-
-
+                onClick={() => router.visit(route("checkout"))}
+                disabled={cartItems.length === 0}
+                className={`w-full mt-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 ${
+                  cartItems.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
+                }`}
+              >
+                Lanjut ke Pembayaran
+              </button>
 
               <Link
                 href={route("shop")}
