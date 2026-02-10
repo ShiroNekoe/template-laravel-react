@@ -14,6 +14,17 @@ type Props = {
   search?: string;
 };
 
+type CartItem = {
+  id: number;
+  quantity: number;
+  product: {
+    id: number;
+    name: string;
+    price: number;
+    image?: string | null;
+  };
+};
+
 export default function Shop({ products, search = "" }: Props) {
   // Semua hooks ada di dalam component
   const { auth, cart } = usePage<{
@@ -34,6 +45,22 @@ export default function Shop({ products, search = "" }: Props) {
     });
   }
 
+  const total = cart.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+
+  function updateQty(id: number, qty: number) {
+    if (qty < 1) return;
+
+    router.put(
+      route("cart.update", id),
+      { quantity: qty }, // 🔥 HARUS quantity (match backend)
+      {
+        preserveScroll: true,
+      }
+    );
+  }
   
 
   return (
@@ -121,7 +148,13 @@ export default function Shop({ products, search = "" }: Props) {
               </div>
             ))}
           </div>
-
+          
+              <div className="flex justify-between">
+                <span>Total</span>
+                <span className="font-bold text-blue-700">
+                  Rp {total.toLocaleString()}
+                </span>
+              </div>
                   <Link
                     href="/cart"
                     className="block text-center mt-3 bg-blue-600 text-white py-2 rounded-xl text-sm"
