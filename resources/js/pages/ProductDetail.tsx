@@ -60,7 +60,7 @@ export default function ProductDetail({ product }: { product: Product }) {
             </div>
 
             {/* ACTION */}
-            <div className="mt-8 flex gap-3">
+            <div className="mt-5 flex gap-2">
               <button
                 disabled={product.stock === 0}
                 onClick={() =>
@@ -69,25 +69,16 @@ export default function ProductDetail({ product }: { product: Product }) {
                   })
                 }
                 className={`flex-1 py-3 rounded-xl font-semibold text-white transition-all duration-200 ${
-  product.stock === 0
-    ? "bg-gray-400 cursor-not-allowed"
-    : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
-}`}
+                product.stock === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
+              }`}
 
               >
                 🛒 Masukkan ke Keranjang
 
               </button>
-
-              <Link
-  href="/cart"
-  className="flex-1 py-3 rounded-xl font-semibold text-blue-700 bg-white/90 backdrop-blur shadow-lg ring-1 ring-blue-200 text-center hover:-translate-y-0.5 transition"
->
-  🛒 Lihat Keranjang
-</Link>
-
             </div>
-
             {/* EXTRA TRUST */}
             <div className="mt-6 text-sm text-gray-400">
               🚚 Pengiriman cepat & aman <br />

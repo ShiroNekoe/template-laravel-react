@@ -17,10 +17,16 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
     0
   );
 
-  function updateQty(id: number, qty: number) {
-    if (qty < 1) return;
-    router.put(route("cart.update", id), { quantity: qty }, { preserveScroll: true });
-  }
+
+function updateQty(id: number, qty: number) {
+  if (qty < 1) return;
+
+  router.put(route("cart.update", id), 
+    { qty },
+    { preserveState: true, preserveScroll: true }
+  );
+}
+
 
   function deleteItem(id: number) {
     router.delete(route("cart.destroy", id), { preserveScroll: true });

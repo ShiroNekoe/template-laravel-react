@@ -47,8 +47,9 @@ class CartController extends Controller
     $cart = Cart::where('user_id', auth()->id())->findOrFail($id);
 
     $data = $request->validate([
-        'quantity' => 'required|integer|min:1'
+        'qty' => 'required|integer|min:1'
     ]);
+    
 
     $cart->update($data);
 
