@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\CartItem as Cart;
 use App\Models\Product; 
+use App\Models\Order;
+use App\Models\OrderItem;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -63,4 +66,33 @@ class CartController extends Controller
         $cartItem->delete();
         return redirect()->back();
     }
+
+    public function checkout(Request $request)
+{
+    $cartItems = auth()->user()->cartItems()->with('product')->get();
+    if ($cartItems->isEmpty()) return redirect()->back();
+
+    DB::transaction(function() use ($cartItems) {
+        $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'total' => $total,
+        ]);
+
+        foreach ($cartItems as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price,
+            ]);
+        }
+
+        // Kosongkan cart
+        auth()->user()->cartItems()->delete();
+    });
+
+    return redirect()->route('orders.index')->with('success', 'Order berhasil dibuat!');
+}
 }

@@ -149,18 +149,17 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
                   Rp {total.toLocaleString()}
                 </span>
               </div>
-
-              <button
-                onClick={() => router.visit(route("checkout"))}
-                disabled={cartItems.length === 0}
-                className={`w-full mt-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 ${
-                  cartItems.length === 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
-                }`}
-              >
-                Lanjut ke Pembayaran
-              </button>
+            <button
+              onClick={() => router.visit(route("checkout.payment"))}
+              disabled={cartItems.length === 0}
+              className={`w-full mt-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 ${
+                cartItems.length === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
+              }`}
+            >
+              Lanjut ke Pembayaran
+            </button>
 
               <Link
                 href={route("shop")}

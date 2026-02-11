@@ -8,6 +8,9 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderAdminController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +36,36 @@ Route::post('/logout', function () {
     Auth::logout();
     return redirect()->route('shop');
 })->name('logout');
+
+Route::middleware('auth')->group(function(){
+  Route::middleware('auth')->group(function () {
+
+    Route::get('/orders', [OrderController::class, 'index'])
+        ->name('orders.index');
+
+    // STEP 1 — halaman pilih metode pembayaran
+    Route::get('/checkout/payment', [CheckoutController::class, 'payment'])
+        ->name('checkout.payment');
+
+    // STEP 2 — proses pembayaran (COD / Transfer)
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])
+        ->name('checkout.process');
+
+    // STEP 3 — hasil pembayaran
+    Route::get('/payment/success', fn () =>
+        Inertia::render('PaymentSuccess')
+    )->name('payment.success');
+
+    Route::get('/payment/failed', fn () =>
+        Inertia::render('PaymentFailed')
+    )->name('payment.failed');
+
+    // Simpan order (opsional, kalau mau pisah dari checkout)
+    Route::post('/orders', [OrderController::class, 'store'])
+        ->name('order.store');
+});
+
+    });
 
 
 /*
@@ -61,6 +94,9 @@ Route::middleware(['auth', 'role:admin'])
             ->name('dashboard');
 
         Route::resource('/products', ProductController::class);
+         Route::get('/orders', [OrderAdminController::class, 'index'])->name('admin.orders');
+    Route::post('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+
 });
 
 /*
