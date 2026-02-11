@@ -2,7 +2,7 @@ import { Link, Head } from "@inertiajs/react";
 
 export default function PaymentFailed() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-100 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-300 to-cyan-100">
       <Head title="Pembayaran Gagal" />
 
       <div className="bg-white p-10 rounded-2xl shadow-lg text-center animate-pulse">

@@ -2,7 +2,7 @@ import { Link, Head } from "@inertiajs/react";
 
 export default function PaymentSuccess() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-300 to-cyan-100">
       <Head title="Pembayaran Berhasil" />
 
       <div className="bg-white p-10 rounded-2xl shadow-lg text-center animate-fade-in">

@@ -64,7 +64,7 @@ export default function Shop({ products, search = "" }: Props) {
   
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-300 via-blue-100 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-300 to-cyan-100">
       <Head title="Shop" />
 
       {/* HEADER */}

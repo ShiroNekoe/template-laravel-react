@@ -1,4 +1,5 @@
 import { router, Link, Head } from "@inertiajs/react";
+import { useState } from "react";
 
 type CartItem = {
   id: number;
@@ -12,6 +13,8 @@ type CartItem = {
 };
 
 export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
+  const [loadingId, setLoadingId] = useState<number | null>(null);
+
   const total = cartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
@@ -20,27 +23,35 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
   function updateQty(id: number, qty: number) {
     if (qty < 1) return;
 
+    setLoadingId(id);
+
     router.put(
       route("cart.update", id),
-      { quantity: qty }, // 🔥 HARUS quantity (match backend)
+      { quantity: qty },
       {
         preserveScroll: true,
+        onFinish: () => setLoadingId(null),
       }
     );
   }
 
   function deleteItem(id: number) {
+    setLoadingId(id);
+
     router.delete(route("cart.destroy", id), {
       preserveScroll: true,
+      onFinish: () => setLoadingId(null),
     });
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-300 via-blue-100 to-white">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-300 to-cyan-100">
       <Head title="Keranjang" />
 
-      <div className="max-w-6xl mx-auto p-6">
-        {/* BACK */}
+      {/* background pattern */}
+      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,white,transparent_40%),radial-gradient(circle_at_80%_30%,white,transparent_40%),radial-gradient(circle_at_50%_80%,white,transparent_40%)]" />
+
+      <div className="relative max-w-6xl mx-auto p-6">
         <Link
           href={route("shop")}
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/80 backdrop-blur border border-blue-200 text-blue-700 font-medium shadow-sm hover:bg-blue-50 transition"
@@ -53,14 +64,9 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
         </h1>
 
         {cartItems.length === 0 ? (
-          <div className="bg-white rounded-3xl shadow p-10 text-center">
-            <p className="text-gray-400">Keranjang kamu masih kosong.</p>
-            <Link
-              href={route("shop")}
-              className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl transition"
-            >
-              Mulai belanja
-            </Link>
+          <div className="bg-white/90 backdrop-blur rounded-3xl shadow-xl p-12 text-center">
+            <div className="text-5xl mb-3">🛍️</div>
+            <p className="text-gray-500">Keranjang kamu masih kosong.</p>
           </div>
         ) : (
           <div className="grid lg:grid-cols-3 gap-6">
@@ -69,7 +75,8 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
               {cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-3xl shadow p-4 hover:shadow-xl transition flex gap-4"
+                  className={`bg-white/90 backdrop-blur rounded-3xl shadow-md p-4 flex gap-4 transition
+                  ${loadingId === item.id ? "scale-[0.98] opacity-70" : "hover:shadow-2xl"}`}
                 >
                   {/* IMAGE */}
                   <div className="bg-blue-50 p-2 rounded-2xl">
@@ -91,27 +98,26 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
 
                     {/* QTY */}
                     <div className="flex items-center gap-3 mt-3">
-                      {/* MINUS */}
                       <button
-                        onClick={() =>
-                          updateQty(item.id, item.quantity - 1)
-                        }
-                        disabled={item.quantity <= 1}
+                        onClick={() => updateQty(item.id, item.quantity - 1)}
+                        disabled={item.quantity <= 1 || loadingId === item.id}
                         className="w-9 h-9 flex items-center justify-center rounded-xl border border-blue-200 bg-white hover:bg-blue-100 transition font-bold disabled:opacity-40"
                       >
                         -
                       </button>
 
-                      {/* NUMBER */}
-                      <span className="min-w-[44px] h-9 flex items-center justify-center font-bold text-blue-700 bg-blue-50 rounded-xl">
+                      {/* angka dengan animasi */}
+                      <span
+                        className={`min-w-[44px] h-9 flex items-center justify-center font-bold text-blue-700 bg-blue-50 rounded-xl transition ${
+                          loadingId === item.id ? "animate-pulse" : ""
+                        }`}
+                      >
                         {item.quantity}
                       </span>
 
-                      {/* PLUS */}
                       <button
-                        onClick={() =>
-                          updateQty(item.id, item.quantity + 1)
-                        }
+                        onClick={() => updateQty(item.id, item.quantity + 1)}
+                        disabled={loadingId === item.id}
                         className="w-9 h-9 flex items-center justify-center rounded-xl border border-blue-200 bg-white hover:bg-blue-100 transition font-bold"
                       >
                         +
@@ -128,7 +134,8 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
 
                     <button
                       onClick={() => deleteItem(item.id)}
-                      className="text-red-500 text-sm hover:underline"
+                      disabled={loadingId === item.id}
+                      className="text-red-500 text-sm hover:underline disabled:opacity-40"
                     >
                       Hapus
                     </button>
@@ -138,28 +145,24 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
             </div>
 
             {/* SUMMARY */}
-            <div className="bg-white rounded-3xl shadow p-6 h-fit">
+            <div className="sticky top-6 bg-white/95 backdrop-blur rounded-3xl shadow-xl p-6 h-fit">
               <h2 className="font-bold text-blue-900 mb-4">
                 Ringkasan Belanja
               </h2>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm">
                 <span>Total</span>
-                <span className="font-bold text-blue-700">
+                <span className="font-extrabold text-lg text-blue-700">
                   Rp {total.toLocaleString()}
                 </span>
               </div>
-            <button
-              onClick={() => router.visit(route("checkout.payment"))}
-              disabled={cartItems.length === 0}
-              className={`w-full mt-6 py-3 rounded-xl font-semibold text-white transition-all duration-200 ${
-                cartItems.length === 0
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
-              }`}
-            >
-              Lanjut ke Pembayaran
-            </button>
+
+              <button
+                onClick={() => router.visit(route("checkout.payment"))}
+                className="w-full mt-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg hover:shadow-2xl hover:-translate-y-0.5 active:scale-95 transition"
+              >
+                Checkout Sekarang 🚀
+              </button>
 
               <Link
                 href={route("shop")}
