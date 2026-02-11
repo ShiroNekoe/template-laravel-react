@@ -174,30 +174,38 @@ export default function Shop({ products, search = "" }: Props) {
               👤 {auth.user.name}
             </button>
 
-            {openMenu && (
-              <div className="absolute right-0 mt-2 w-44 bg-white border rounded-xl shadow-md overflow-hidden">
-                <Link
-                  href="/cart"
-                  className="block px-4 py-2 text-sm hover:bg-blue-50"
-                >
-                  🛒 Cart
-                </Link>
+          {openMenu && (
+  <div className="absolute right-0 mt-2 w-44 bg-white border rounded-xl shadow-md overflow-hidden">
+    <Link
+      href="/cart"
+      className="block px-4 py-2 text-sm hover:bg-blue-50"
+    >
+      🛒 Cart
+    </Link>
 
-                <Link
-                  href={route("settings")}
-                  className="block px-4 py-2 text-sm hover:bg-gray-100"
-                >
-                  ⚙️ Settings
-                </Link>
+    <Link
+      href={route("orders.index")}
+      className="block px-4 py-2 text-sm hover:bg-blue-50"
+    >
+      📦 My Orders
+    </Link>
 
-                <button
-                  onClick={() => router.post(route("logout"))}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                >
-                  🚪 Logout
-                </button>
-              </div>
-            )}
+    <Link
+      href={route("settings")}
+      className="block px-4 py-2 text-sm hover:bg-gray-100"
+    >
+      ⚙️ Settings
+    </Link>
+
+    <button
+      onClick={() => router.post(route("logout"))}
+      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+    >
+      🚪 Logout
+    </button>
+  </div>
+)}
+
           </div>
 
           {isAdmin && (

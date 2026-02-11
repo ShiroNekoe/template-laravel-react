@@ -59,10 +59,19 @@ Route::middleware('auth')->group(function(){
     Route::get('/payment/failed', fn () =>
         Inertia::render('PaymentFailed')
     )->name('payment.failed');
+    
+    Route::get('/payment/pending', fn () =>
+        Inertia::render('PaymentPending')
+    )->name('payment.pending');
+    
+    
 
     // Simpan order (opsional, kalau mau pisah dari checkout)
     Route::post('/orders', [OrderController::class, 'store'])
         ->name('order.store');
+
+         Route::get('/orders/{order}', [OrderController::class, 'show'])
+        ->name('orders.show');
 });
 
     });
@@ -94,9 +103,15 @@ Route::middleware(['auth', 'role:admin'])
             ->name('dashboard');
 
         Route::resource('/products', ProductController::class);
-         Route::get('/orders', [OrderAdminController::class, 'index'])->name('admin.orders');
-    Route::post('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
+        Route::get('/orders', [OrderAdminController::class, 'index'])
+            ->name('orders.index');
+
+        Route::get('/orders/{order}', [OrderAdminController::class, 'show'])
+            ->name('orders.show'); // <-- DETAIL PAGE
+
+        Route::post('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])
+            ->name('orders.updateStatus'); // <-- UPDATE STATUS
 });
 
 /*

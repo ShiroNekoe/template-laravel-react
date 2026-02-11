@@ -68,7 +68,7 @@ class CheckoutController extends Controller
             'price' => $item->product->price,
         ]);
     }
-
+    $item->product->decrement('stock', $item->quantity);
     // update total setelah loop (lebih clean)
     $order->update(['total' => $total]);
 

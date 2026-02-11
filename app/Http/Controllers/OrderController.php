@@ -7,7 +7,22 @@ use App\Models\Order;
 use App\Models\OrderItem;
 
 class OrderController extends Controller
-{public function store(Request $request)
+{
+ 
+public function index()
+{
+    $orders = Order::where('user_id', auth()->id())
+        ->with(['orderItems.product'])
+        ->latest()
+        ->get();
+
+    return inertia('Orders', [
+        'orders' => $orders
+    ]);
+}
+
+
+public function store(Request $request)
 {
     $data = $request->validate([
         'method' => 'required|in:COD,VA',
@@ -40,8 +55,24 @@ class OrderController extends Controller
     // kosongin cart
     $user->cartItems()->delete();
 
-    return redirect()->route('payment.success')
-        ->with('order_id', $order->id);
+return $data['method'] === 'COD'
+    ? redirect()->route('payment.pending')->with('order_id', $order->id)
+    : redirect()->route('payment.success')->with('order_id', $order->id);
+
+}
+
+public function show(Order $order)
+{
+    $order->load('orderItems.product');
+
+    // security dikit (biar user ga intip order orang)
+    if ($order->user_id !== auth()->id()) {
+        abort(403);
+    }
+
+    return inertia('OrderDetail', [
+        'order' => $order,
+    ]);
 }
 
 
