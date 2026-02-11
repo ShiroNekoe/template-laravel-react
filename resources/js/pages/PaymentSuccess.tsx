@@ -1,45 +1,124 @@
 import { Link, Head } from "@inertiajs/react";
+import { useEffect, useState } from "react";
 
 export default function PaymentSuccess() {
+  const [showConfetti, setShowConfetti] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowConfetti(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-300 to-cyan-100">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-300 to-cyan-100">
       <Head title="Pembayaran Berhasil" />
 
-      <div className="bg-white p-10 rounded-2xl shadow-lg text-center animate-fade-in">
-        <div className="text-6xl mb-4 animate-pulse">✅</div>
-        <h1 className="text-2xl font-bold text-green-700">
-          Pembayaran Berhasil!
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Order kamu lagi diproses.
-        </p>
+      {/* 🎉 CONFETTI */}
+      {showConfetti && (
+        <div className="pointer-events-none absolute inset-0">
+          {[...Array(25)].map((_, i) => (
+            <span
+              key={i}
+              className="absolute text-xl animate-confetti"
+              style={{
+                left: Math.random() * 100 + "%",
+                animationDelay: Math.random() * 0.5 + "s",
+              }}
+            >
+              🎉
+            </span>
+          ))}
+        </div>
+      )}
 
-        <Link
-          href={route("shop")}
-          className="inline-block mt-6 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition"
-        >
-          Kembali ke Shop
-        </Link>
+      {/* soft pattern */}
+      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,white,transparent_40%),radial-gradient(circle_at_80%_30%,white,transparent_40%),radial-gradient(circle_at_50%_80%,white,transparent_40%)]" />
+
+      <div className="relative flex items-center justify-center min-h-screen p-6">
+        <div className="w-full max-w-xl text-center bg-white/95 backdrop-blur rounded-3xl shadow-2xl px-10 py-14">
+          
+         {/* ICON */}
+<div className="relative flex justify-center mb-6">
+  <div className="absolute w-28 h-28 bg-emerald-400/30 blur-3xl rounded-full animate-pulse" />
+  <div className="relative text-7xl success-icon">
+    ✅
+  </div>
+</div>
+
+
+          {/* TITLE */}
+          <h1 className="text-4xl font-extrabold text-blue-900 tracking-tight">
+            Pembayaran Berhasil 🎉
+          </h1>
+
+          {/* SUB */}
+          <p className="text-gray-600 mt-4 leading-relaxed">
+            Terima kasih sudah berbelanja.
+            Pesanan kamu sekarang masuk antrian proses kami.
+          </p>
+
+          {/* MINI INFO */}
+          <div className="mt-8 space-y-2 text-sm text-gray-500">
+            <p>📦 Tim kami sedang menyiapkan paketmu</p>
+            <p>⚡ Kamu akan mendapat notifikasi saat dikirim</p>
+          </div>
+
+          {/* CTA */}
+          <div className="mt-10">
+            <Link
+              href={route("shop")}
+              className="inline-block px-7 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-900 shadow-lg hover:shadow-2xl hover:-translate-y-1 active:scale-95 transition"
+            >
+              Belanja Lagi 🛍️
+            </Link>
+          </div>
+        </div>
       </div>
 
-      <style>
-        {`
-        .animate-fade-in {
-          animation: fadeIn 0.6s ease-out;
+      {/* animation */}
+
+<style>{`
+  .success-icon {
+    animation: popIn 0.8s cubic-bezier(.17,.67,.48,1.32);
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0) translateY(20px); opacity: 0; }
+    60% { transform: scale(1.25) translateY(-6px); opacity: 1; }
+    100% { transform: scale(1) translateY(0); }
+  }
+
+  .animate-confetti {
+    animation: confetti 3s linear forwards;
+  }
+
+  @keyframes confetti {
+    0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+`}</style>
+
+
+      <style>{`
+        .animate-success-bounce {
+          animation: successBounce 0.6s ease;
         }
 
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        @keyframes successBounce {
+          0% { transform: scale(0.5); opacity: 0; }
+          60% { transform: scale(1.2); opacity: 1; }
+          100% { transform: scale(1); }
         }
-        `}
-      </style>
+
+        .animate-confetti {
+          animation: confetti 3s linear forwards;
+        }
+
+        @keyframes confetti {
+          0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
