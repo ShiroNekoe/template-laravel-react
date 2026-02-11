@@ -1,45 +1,42 @@
 import { Link, Head } from "@inertiajs/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function PaymentPending({ flash }: any) {
-  const [showDots, setShowDots] = useState(".");
+  const [showMarks, setShowMarks] = useState<string | boolean>(".");
+
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setShowDots((prev) =>
-        prev.length >= 3 ? "." : prev + "."
-      );
-    }, 500);
-
-    return () => clearInterval(interval);
+    const timer = setTimeout(() => setShowMarks(false), 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-yellow-500 via-yellow-200 to-white">
-      <Head title="Menunggu Kurir" />
+      <Head title="Pembayaran Gagal" />
 
-      {/* floating particles (soft vibe, bukan confetti) */}
-      <div className="pointer-events-none absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <span
-            key={i}
-            className="absolute text-lg animate-float"
-            style={{
-              left: Math.random() * 100 + "%",
-              top: Math.random() * 100 + "%",
-              animationDelay: Math.random() * 1 + "s",
-            }}
-          >
-            ⏳
-          </span>
-        ))}
-      </div>
+      {/* ⏳ hujan X */}
+      {showMarks && (
+        <div className="pointer-events-none absolute inset-0">
+          {[...Array(25)].map((_, i) => (
+            <span
+              key={i}
+              className="absolute text-xl animate-fall"
+              style={{
+                left: Math.random() * 100 + "%",
+                animationDelay: Math.random() * 0.5 + "s",
+              }}
+            >
+              ⏳
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_20%_20%,white,transparent_40%),radial-gradient(circle_at_80%_30%,white,transparent_40%),radial-gradient(circle_at_50%_80%,white,transparent_40%)]" />
 
       <div className="relative flex items-center justify-center min-h-screen p-6">
         <div className="w-full max-w-xl text-center bg-white/95 backdrop-blur rounded-3xl shadow-2xl px-10 py-14">
-          
+
           {/* ICON */}
           <div className="relative flex justify-center mb-6">
             <div className="absolute w-28 h-28 bg-yellow-400/30 blur-3xl rounded-full animate-pulse" />
@@ -50,12 +47,12 @@ export default function PaymentPending({ flash }: any) {
 
           {/* TITLE */}
           <h1 className="text-4xl font-extrabold text-yellow-800 tracking-tight">
-            Menunggu Pembayaran COD
+            Menunggu Pembayaran COD{showMarks}
           </h1>
 
           {/* SUB */}
           <p className="text-gray-600 mt-4 leading-relaxed">
-            Kurir lagi jalan. Lu bayar pas barang sampai.
+            Kurir lagi jalan. Kamu bayar pas barang sampai.
           </p>
 
           {flash?.order_id && (
@@ -67,7 +64,9 @@ export default function PaymentPending({ flash }: any) {
           {/* MINI INFO */}
           <div className="mt-8 space-y-2 text-sm text-gray-500">
             <p>🚚 Kurir akan menghubungi kamu</p>
-            <p>📦 Status: <span className="font-bold">Pending</span></p>
+            <p>
+              📦 Status: <span className="font-bold">Pending</span>
+            </p>
           </div>
 
           {/* CTA */}
@@ -84,23 +83,19 @@ export default function PaymentPending({ flash }: any) {
 
       <style>{`
         .pending-icon {
-          animation: popIn 0.8s cubic-bezier(.17,.67,.48,1.32);
+          animation: popIn 0.7s cubic-bezier(.17,.67,.48,1.32);
         }
-
         @keyframes popIn {
-          0% { transform: scale(0) translateY(20px); opacity: 0; }
-          60% { transform: scale(1.25) translateY(-6px); opacity: 1; }
-          100% { transform: scale(1) translateY(0); }
+          0% { transform: scale(0); opacity: 0; }
+          60% { transform: scale(1.2); opacity: 1; }
+          100% { transform: scale(1); }
         }
-
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
+        .animate-fall {
+          animation: fall 3s linear forwards;
         }
-
-        @keyframes float {
-          0% { transform: translateY(0) rotate(0); opacity: 0.8; }
-          50% { transform: translateY(-20px) rotate(10deg); opacity: 1; }
-          100% { transform: translateY(0) rotate(0); opacity: 0.8; }
+        @keyframes fall {
+          from { transform: translateY(-20px) rotate(0); opacity: 1; }
+          to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
       `}</style>
     </div>
