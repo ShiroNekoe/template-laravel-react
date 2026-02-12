@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Inertia\Inertia;
@@ -16,7 +17,7 @@ class DashboardController extends Controller
                 'total_products' => Product::count(),
                 'out_of_stock' => Product::where('stock', 0)->count(),
                 'total_users' => User::count(),
-                'pending_orders' => 0, // nanti lu bisa ganti kalo udah ada tabel orders
+                'pending_orders' => Order::count(), // nanti lu bisa ganti kalo udah ada tabel orders
             ],
             'latestProducts' => Product::latest()->take(5)->get([
                 'id', 'name', 'stock'

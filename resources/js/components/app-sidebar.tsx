@@ -24,7 +24,15 @@ const mainNavItems: NavItem[] = [
         title: "Orders",
         href: "/admin/orders",
         icon: Folder,
+    },
+
+    {   
+        title: "Users",
+        href: "/admin/users",
+        icon: BookOpen,
     }
+
+
 ];
 
 const footerNavItems: NavItem[] = [

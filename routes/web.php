@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderAdminController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +40,6 @@ Route::post('/logout', function () {
 })->name('logout');
 
 Route::middleware('auth')->group(function(){
-  Route::middleware('auth')->group(function () {
 
     Route::get('/orders', [OrderController::class, 'index'])
         ->name('orders.index');
@@ -72,9 +73,11 @@ Route::middleware('auth')->group(function(){
 
          Route::get('/orders/{order}', [OrderController::class, 'show'])
         ->name('orders.show');
+    
+    Route::get('/settinguser', [UserController::class, 'edit'])->name('settings.edit');
+    Route::put('/settinguser', [UserController::class, 'update'])->name('settings.update');
 });
 
-    });
 
 
 /*
@@ -112,6 +115,9 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::post('/orders/{order}/status', [OrderAdminController::class, 'updateStatus'])
             ->name('orders.updateStatus'); // <-- UPDATE STATUS
+
+        Route::resource('/users', AdminUserController::class);
+
 });
 
 /*

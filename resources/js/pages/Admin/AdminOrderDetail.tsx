@@ -15,7 +15,7 @@ type Props = {
     payment_method: string;
     total: number;
     created_at: string;
-    user: { name: string; email: string };
+    user: { name: string; email: string; address: string;phone: string};
     items: OrderItem[];
   };
 };
@@ -83,11 +83,13 @@ export default function AdminOrderDetail({ order }: Props) {
         </div>
 
         {/* INFO ORDER */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="border p-4 rounded-xl">
+        <div className="grid grid-cols-2 gap-5">
+          <div className="border p-5 rounded-xl">
             <p className="text-sm text-muted-foreground">Customer</p>
             <p className="font-semibold">{order.user.name}</p>
             <p className="text-sm">{order.user.email}</p>
+            <p className="text-sm">{order.user.phone}</p>
+            <p className="text-sm">{order.user.address}</p>
           </div>
 
           <div className="border p-4 rounded-xl">

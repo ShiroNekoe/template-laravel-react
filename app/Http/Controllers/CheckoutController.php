@@ -34,7 +34,7 @@ class CheckoutController extends Controller
         'payment_method' => 'required|in:cod,transfer'
     ]);
 
-    $userId = $request->user()->id; // 👉 biar nggak merah- merah
+    $userId = $request->user()->id; 
 
     $cartItems = CartItem::where('user_id', $userId)
         ->with('product')
@@ -47,12 +47,12 @@ class CheckoutController extends Controller
 
     $order = null;
 
-  DB::transaction(function () use ($cartItems, &$order, $data, $userId) {
+DB::transaction(function () use ($cartItems, &$order, $data, $userId) {
 
     $order = Order::create([
         'user_id' => $userId,
         'status' => $data['payment_method'] === 'cod' ? 'pending' : 'paid',
-        'total' => 0, // kita hitung ulang biar aman
+        'total' => 0,
     ]);
 
     $total = 0;
@@ -64,17 +64,27 @@ class CheckoutController extends Controller
         OrderItem::create([
             'order_id' => $order->id,
             'product_id' => $item->product_id,
-            'quantity' => (int) $item->quantity, // DIPAKSA INTEGER biar MySQL diem
+            'quantity' => (int) $item->quantity,
             'price' => $item->product->price,
         ]);
+
+        $affected = DB::update(
+            "UPDATE products 
+             SET stock = stock - ? 
+             WHERE id = ? AND stock >= ?",
+            [(int) $item->quantity, $item->product_id, (int) $item->quantity]
+        );
+
+        if ($affected === 0) {
+            throw new \Exception("Stok gak cukup: Product #{$item->product_id}");
+        }
     }
-    $item->product->decrement('stock', $item->quantity);
-    // update total setelah loop (lebih clean)
+
     $order->update(['total' => $total]);
 
-    // baru kosongin cart
     CartItem::where('user_id', $userId)->delete();
 });
+
 
 
     return redirect()->route('payment.success')

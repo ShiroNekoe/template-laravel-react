@@ -194,7 +194,7 @@ export default function Shop({ products, search = "" }: Props) {
     </Link>
 
     <Link
-      href={route("settings")}
+      href={route("settings.edit")}
       className="block px-4 py-2 text-sm hover:bg-gray-100"
     >
       ⚙️ Settings
