@@ -38,14 +38,13 @@ export default function Orders({ orders }: Props) {
 
   const [loading, setLoading] = useState(false);
 
-  // ✅ AUTO REFRESH TANPA ERROR MERAH
+  // ✅ AUTO REFRESH
   useEffect(() => {
     const interval = setInterval(() => {
       router.reload({
-  only: ["orders"],
-  preserveScroll: true,
-} as any);
-
+        only: ["orders"],
+        preserveScroll: true,
+      } as any);
     }, 10000);
 
     return () => clearInterval(interval);
@@ -76,7 +75,7 @@ export default function Orders({ orders }: Props) {
   const changeFilter = (s: any) => {
     setLoading(true);
     setStatusFilter(s);
-    setTimeout(() => setLoading(false), 300);
+    setTimeout(() => setLoading(false), 250);
   };
 
   return (
@@ -84,17 +83,26 @@ export default function Orders({ orders }: Props) {
       <Head title="Pesanan Saya" />
 
       <div className="max-w-7xl mx-auto p-6">
-        {/* HEADER */}
-        <div className="inline-block bg-white/90 backdrop-blur px-6 py-3 rounded-2xl shadow">
-          <h1 className="text-3xl font-extrabold text-blue-900">
-            Pesanan Saya 📦
-          </h1>
+        {/* ✅ HEADER BARU */}
+        <div className="flex items-center gap-3 mb-5">
+          <Link
+            href={route("shop")}
+            className="px-4 py-2 rounded-xl bg-white/90 backdrop-blur shadow">
+            🏠
+          </Link>
+
+          <div className="px-4 py-2 rounded-xl bg-white/90 backdrop-blur shadow">
+            <h1 className="text-lg font-bold text-blue-900">
+              Pesanan Saya 📦
+            </h1>
+          </div>
         </div>
 
-        {/* FILTER */}
-        <div className="flex gap-3 mt-6 flex-wrap">
+        {/* ✅ FILTER */}
+        <div className="flex gap-3 flex-wrap">
           {STATUS_OPTIONS.map((status) => {
             const active = statusFilter === status;
+
             return (
               <button
                 key={status}
@@ -111,7 +119,7 @@ export default function Orders({ orders }: Props) {
           })}
         </div>
 
-        {/* LIST */}
+        {/* ✅ LIST */}
         <div className="mt-8">
           {loading ? (
             <div className="space-y-4">
@@ -186,23 +194,15 @@ export default function Orders({ orders }: Props) {
             </div>
           )}
         </div>
-
-        {/* BACK */}
-        <Link
-          href={route("shop")}
-          className="inline-block mt-8 text-blue-700 font-semibold hover:underline"
-        >
-          ← Kembali ke Shop
-        </Link>
       </div>
 
       {/* ANIMATION */}
       <style>{`
         .animate-fade {
-          animation: fade .3s ease;
+          animation: fade .25s ease;
         }
         @keyframes fade {
-          from { opacity: 0; transform: translateY(5px); }
+          from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
