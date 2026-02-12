@@ -12,14 +12,19 @@ import AuthLayout from '@/layouts/auth-layout';
 type RegisterForm = {
     name: string;
     email: string;
+    phone: string;
+    address: string;
     password: string;
     password_confirmation: string;
 };
 
+
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
-        name: '',
+          name: '',
         email: '',
+        phone: '',
+        address: '',
         password: '',
         password_confirmation: '',
     });
@@ -68,6 +73,37 @@ export default function Register() {
                         />
                         <InputError message={errors.email} />
                     </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="phone">Phone</Label>
+                        <Input
+                            id="phone"
+                            type="text"
+                            required
+                            tabIndex={3}
+                            value={data.phone}
+                            onChange={(e) => setData('phone', e.target.value)}
+                            disabled={processing}
+                            placeholder="08xxxxxxxxxx"
+                        />
+                        <InputError message={errors.phone} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="address">Address</Label>
+                        <Input
+                            id="address"
+                            type="text"
+                            required
+                            tabIndex={4}
+                            value={data.address}
+                            onChange={(e) => setData('address', e.target.value)}
+                            disabled={processing}
+                            placeholder="Your address"
+                        />
+                        <InputError message={errors.address} />
+                    </div>
+
 
                     <div className="grid gap-2">
                         <Label htmlFor="password">Password</Label>
