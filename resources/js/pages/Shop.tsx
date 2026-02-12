@@ -135,8 +135,11 @@ export default function Shop({ products, search = "" }: Props) {
           <div className="space-y-2 max-h-60 overflow-y-auto">
             {cart.map((item) => (
               <div key={item.id} className="flex items-center gap-2 border-b pb-2">
-                <img
-                  src={item.product.image ?? "/placeholder.png"}
+              <img
+                  src={item.product.image 
+                    ? `/storage/${item.product.image}` 
+                    : "/placeholder.png"
+                  }
                   className="w-10 h-10 object-cover rounded"
                 />
                 <div className="flex-1">
@@ -239,7 +242,7 @@ export default function Shop({ products, search = "" }: Props) {
               {/* IMAGE */}
               <div className="h-52 bg-blue-50 overflow-hidden">
                 <img
-                  src={(p as any).image ?? "/placeholder.png"}
+                  src={(p as any).image ? `/storage/${(p as any).image}` : "/placeholder.png"}
                   alt={p.name}
                   className="h-full w-full object-cover group-hover:scale-110 transition duration-300"
                 />

@@ -25,6 +25,7 @@ type Props = {
 
 const STATUS_FLOW = [
   { key: "pending", label: "Menunggu" },
+  { key: "paid", label: "Dibayar" },
   { key: "packing", label: "Dikemas" },
   { key: "shipped", label: "Dikirim" },
   { key: "completed", label: "Selesai" },

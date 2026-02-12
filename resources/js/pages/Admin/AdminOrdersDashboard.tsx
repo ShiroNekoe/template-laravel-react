@@ -1,9 +1,10 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
+import { useState } from "react";
 
 type Order = {
   id: number;
-  status: "pending" | "packing" | "shipped" | "completed";
+  status: "pending" | "paid" | "packing" | "shipped" | "completed";
   total: number;
   user: { name: string };
   created_at: string;
@@ -12,6 +13,7 @@ type Order = {
 type Props = {
   orders: {
     pending: Order[];
+    paid: Order[];
     packing: Order[];
     shipped: Order[];
     completed: Order[];
@@ -19,6 +21,14 @@ type Props = {
 };
 
 export default function AdminOrdersDashboard({ orders }: Props) {
+  const [search, setSearch] = useState("");
+
+  const filterOrders = (orders: Order[]) =>
+    orders.filter(order =>
+      order.id.toString().includes(search) ||
+      order.user.name.toLowerCase().includes(search.toLowerCase())
+    );
+
   return (
     <AppLayout breadcrumbs={[{ title: 'Admin Orders', href: '/admin/orders' }]}>
       <Head title="Admin Order Flow" />
@@ -26,8 +36,16 @@ export default function AdminOrdersDashboard({ orders }: Props) {
       <div className="p-4 space-y-4">
         <h1 className="text-2xl font-bold">Order Flow</h1>
 
-        <div className="grid grid-cols-4 gap-4">
-          {(["pending", "packing", "shipped", "completed"] as const).map(
+        <input
+          type="text"
+          placeholder="Cari Order ID atau Nama Customer..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border px-3 py-2 rounded-lg w-full"
+        />
+
+        <div className="grid grid-cols-5 gap-5">
+          {(["pending","paid", "packing", "shipped", "completed"] as const).map(
             (status) => (
               <div key={status} className="border p-4 rounded-xl">
                 <h2 className="font-semibold capitalize mb-2">
@@ -37,8 +55,10 @@ export default function AdminOrdersDashboard({ orders }: Props) {
                 <div className="space-y-2 max-h-72 overflow-y-auto">
                   {orders[status].length === 0 ? (
                     <p className="text-sm text-gray-400">Kosong.</p>
+                  ) : filterOrders(orders[status]).length === 0 ? (
+                    <p className="text-sm text-gray-400">Gak ketemu.</p>
                   ) : (
-                    orders[status].map((order) => (
+                    filterOrders(orders[status]).map((order) => (
                       <Link
                         key={order.id}
                         href={route("admin.orders.show", order.id)}
@@ -61,12 +81,6 @@ export default function AdminOrdersDashboard({ orders }: Props) {
               </div>
             )
           )}
-        </div>
-
-        <div className="flex gap-2">
-          <Link href="/admin/dashboard" className="px-4 py-2 border rounded-md">
-            ← Back to Dashboard
-          </Link>
         </div>
       </div>
     </AppLayout>

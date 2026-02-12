@@ -12,6 +12,7 @@ class OrderAdminController extends Controller
     return inertia('Admin/AdminOrdersDashboard', [
         'orders' => [
             'pending' => Order::with('user')->where('status', 'pending')->latest()->get(),
+            'paid' => Order::with('user')->where('status', 'paid')->latest()->get(),
             'packing' => Order::with('user')->where('status', 'packing')->latest()->get(),
             'shipped' => Order::with('user')->where('status', 'shipped')->latest()->get(),
             'completed' => Order::with('user')->where('status', 'completed')->latest()->get(),
@@ -32,7 +33,7 @@ class OrderAdminController extends Controller
 public function updateStatus(Request $request, Order $order)
 {
     $request->validate([
-        'status' => 'required|in:pending,packing,shipped,completed',
+        'status' => 'required|in:pending,paid,packing,shipped,completed',
     ]);
 
     $order->update([

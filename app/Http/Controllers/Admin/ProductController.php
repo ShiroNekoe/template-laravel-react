@@ -22,18 +22,42 @@ class ProductController extends Controller
             'name' => 'required',
             'price' => 'required|integer',
             'stock' => 'required|integer',
-            'description' => 'nullable'
+            'description' => 'nullable',
+            'image' => 'nullable',  
         ]);
+
+         if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('products', 'public');
+        $data['image'] = $path;
+        }
 
         Product::create($data);
         return redirect()->back();
+
+       
+
     }
 
-    public function update(Request $request, Product $product)
-    {
-        $product->update($request->all());
-        return redirect()->back();
-    }
+        public function update(Request $request, Product $product)
+        {
+            $data = $request->validate([
+                'name' => 'required',
+                'price' => 'required|integer',
+                'stock' => 'required|integer',
+                'description' => 'nullable',
+                'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+            ]);
+
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('products', 'public');
+                $data['image'] = $path;
+            }
+
+            $product->update($data);
+
+            return redirect()->back();
+        }   
+
 
     public function destroy(Product $product)
     {

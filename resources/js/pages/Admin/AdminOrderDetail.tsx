@@ -11,7 +11,7 @@ type OrderItem = {
 type Props = {
   order: {
     id: number;
-    status: "pending" | "packing" | "shipped" | "completed";
+    status: "pending" | "paid" | "packing" | "shipped" | "completed";
     payment_method: string;
     total: number;
     created_at: string;
@@ -20,7 +20,7 @@ type Props = {
   };
 };
 
-const STATUS_FLOW = ["pending", "packing", "shipped", "completed"] as const;
+const STATUS_FLOW = ["pending", "paid", "packing", "shipped", "completed"] as const;
 
 export default function AdminOrderDetail({ order }: Props) {
   const currentIndex = STATUS_FLOW.indexOf(order.status);
@@ -119,13 +119,6 @@ export default function AdminOrderDetail({ order }: Props) {
             ))}
           </div>
         </div>
-
-        <Link
-          href="/admin/orders"
-          className="inline-block px-4 py-2 border rounded-md"
-        >
-          ← Back
-        </Link>
       </div>
     </AppLayout>
   );

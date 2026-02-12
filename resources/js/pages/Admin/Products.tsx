@@ -8,32 +8,41 @@ type Props = {
 };
 
 export default function Products({ products }: Props) {
-  const { data, setData, post, put, reset } = useForm({
+  const { data, setData, post, reset } = useForm({
     id: null as number | null,
     name: "",
     price: "",
     stock: "",
     description: "",
+    image: null as File | null,
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [search, setSearch] = useState("");
 
-  function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
 
-    if (isEditing && data.id) {
-      put(`/admin/products/${data.id}`, {
-        onSuccess: () => {
-          setIsEditing(false);
-          reset();
-        },
-      });
-    } else {
-      post("/admin/products", {
-        onSuccess: () => reset(),
-      });
-    }
+ function submit(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+
+  if (isEditing && data.id) {
+    router.put(`/admin/products/${data.id}`, data, {
+      forceFormData: true,
+      onSuccess: () => {
+        setIsEditing(false);
+        reset();
+      },
+    });
+  } else {
+    post("/admin/products", {
+      forceFormData: true,
+      onSuccess: () => reset(),
+    });
   }
+}
+
 
   function handleEdit(p: Product) {
     setIsEditing(true);
@@ -43,6 +52,7 @@ export default function Products({ products }: Props) {
       price: String(p.price),
       stock: String(p.stock),
       description: p.description || "",
+      image: null, // biarin null, kecuali user upload baru
     });
   }
 
@@ -52,19 +62,20 @@ export default function Products({ products }: Props) {
 
       <div className="p-4 space-y-4">
 
-        {/* FORM CARD */}
-        <div className="border p-4 rounded-xl">
+        {/* FORM */}
+        <div className="border p-4 rounded-xl bg-white shadow-sm">
           <h2 className="text-lg font-semibold mb-3">
             {isEditing ? "Edit Produk" : "Tambah Produk"}
           </h2>
 
-          <form onSubmit={submit} className="flex gap-2 flex-wrap">
+          <form onSubmit={submit} className="grid grid-cols-4 gap-3">
             <input
               placeholder="Name"
               value={data.name}
               onChange={(e) => setData("name", e.target.value)}
               className="border p-2 rounded"
             />
+
             <input
               placeholder="Price"
               type="number"
@@ -72,6 +83,7 @@ export default function Products({ products }: Props) {
               onChange={(e) => setData("price", e.target.value)}
               className="border p-2 rounded"
             />
+
             <input
               placeholder="Stock"
               type="number"
@@ -81,75 +93,105 @@ export default function Products({ products }: Props) {
             />
 
             <input
-              placeholder="deskripsi"
-              value={data.description}
-              onChange={(e) => setData("description", e.target.value)}
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setData("image", e.target.files ? e.target.files[0] : null)
+              }
               className="border p-2 rounded"
             />
 
-            <button
-              className={`px-4 py-2 rounded text-white ${
-                isEditing ? "bg-green-600" : "bg-blue-600"
-              }`}
-            >
-              {isEditing ? "Update" : "Add"}
-            </button>
+            <input
+              placeholder="Deskripsi"
+              value={data.description}
+              onChange={(e) => setData("description", e.target.value)}
+              className="border p-2 rounded col-span-4"
+            />
 
-            {isEditing && (
+            <div className="col-span-4 flex gap-2">
               <button
-                type="button"
-                onClick={() => {
-                  setIsEditing(false);
-                  reset();
-                }}
-                className="bg-gray-500 text-white px-4 py-2 rounded"
+                className={`px-4 py-2 rounded text-white ${
+                  isEditing ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"
+                }`}
               >
-                Cancel
+                {isEditing ? "Update" : "Add"}
               </button>
-            )}
+
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(false);
+                    reset();
+                  }}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
         </div>
 
-        {/* TABLE CARD */}
-        <div className="border p-4 rounded-xl">
+        {/* SEARCH */}
+        <input
+          type="text"
+          placeholder="Cari produk..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border px-3 py-2 rounded-lg w-full"
+        />
+
+        {/* TABLE */}
+        <div className="border p-4 rounded-xl bg-white shadow-sm">
           <h2 className="text-lg font-semibold mb-3">Daftar Produk</h2>
 
           <table className="w-full border-collapse border border-gray-200">
             <thead>
-              <tr>
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Price</th>
-                <th className="border p-2">Stock</th>
-                <th className="border p-2">Aksi</th>
+              <tr className="bg-gray-100">
+                <th className="border p-2 text-left">Name</th>
+                <th className="border p-2 text-left">Price</th>
+                <th className="border p-2 text-left">Stock</th>
+                <th className="border p-2 text-left">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
-                <tr key={p.id}>
-                  <td className="border p-2">{p.name}</td>
-                  <td className="border p-2">Rp {p.price}</td>
-                  <td className="border p-2">{p.stock}</td>
-                  <td className="border p-2 flex gap-2">
-                    <button
-                      onClick={() => handleEdit(p)}
-                      className="text-blue-600"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      onClick={() => router.delete(`/admin/products/${p.id}`)}
-                      className="text-red-600"
-                    >
-                      Hapus
-                    </button>
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center p-4 text-gray-400">
+                    Produk gak ketemu.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredProducts.map((p) => (
+                  <tr key={p.id} className="hover:bg-gray-50">
+                    <td className="border p-2">{p.name}</td>
+                    <td className="border p-2">Rp {p.price.toLocaleString()}</td>
+                    <td className="border p-2">{p.stock}</td>
+                    <td className="border p-2 flex gap-2">
+                      <button
+                        onClick={() => handleEdit(p)}
+                        className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          confirm("Yakin hapus?") &&
+                          router.delete(`/admin/products/${p.id}`)
+                        }
+                        className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-
       </div>
     </AppLayout>
   );

@@ -26,10 +26,10 @@ export default function ProductDetail({ product }: { product: Product }) {
         <div className="grid md:grid-cols-2 gap-10 mt-6">
           {/* IMAGE */}
           <div className="bg-white rounded-3xl shadow-2xl p-4">
-            <img
-              src={product.image ?? "/placeholder.png"}
-              className="w-full h-[420px] object-cover rounded-2xl"
-            />
+          <img
+            src={product.image ? `/storage/${product.image}` : "/placeholder.png"}
+            className="w-full h-[420px] object-cover rounded-2xl"
+          />
           </div>
 
           {/* INFO */}

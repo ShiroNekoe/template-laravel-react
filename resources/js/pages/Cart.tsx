@@ -81,9 +81,11 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
                   {/* IMAGE */}
                   <div className="bg-blue-50 p-2 rounded-2xl">
                     <img
-                      src={item.product.image ?? "/placeholder.png"}
+                      src={item.product.image ? `/storage/${item.product.image}` : "/placeholder.png"}
                       className="w-24 h-24 object-cover rounded-xl"
                     />
+
+
                   </div>
 
                   {/* INFO */}
