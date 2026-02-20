@@ -1,3 +1,10 @@
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/data-table";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
 import AppLayout from "@/layouts/app-layout";
 import { Head, useForm, router } from "@inertiajs/react";
 import { useState } from "react";
@@ -8,7 +15,7 @@ type User = {
   email: string;
   role: "user" | "admin";
   address?: string | null;
-    phone?: string | null;
+  phone?: string | null;
 };
 
 type Props = {
@@ -16,7 +23,7 @@ type Props = {
 };
 
 export default function Users({ users }: Props) {
-  const { data, setData, put, reset } = useForm({
+  const { data, setData, reset } = useForm({
     id: null as number | null,
     name: "",
     email: "",
@@ -28,23 +35,11 @@ export default function Users({ users }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [search, setSearch] = useState("");
 
-  const filteredUsers = users.filter((u) =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
   );
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (data.id) {
-      router.put(`/admin/users/${data.id}`, data, {
-        onSuccess: () => {
-          setIsEditing(false);
-          reset();
-        },
-      });
-    }
-  }
 
   function handleEdit(u: User) {
     setIsEditing(true);
@@ -54,144 +49,98 @@ export default function Users({ users }: Props) {
       email: u.email,
       role: u.role,
       address: u.address || "",
-        phone: u.phone || "",
+      phone: u.phone || "",
     });
   }
 
+  // 📊 Columns
+  const columns: ColumnDef<User>[] = [
+    {
+      accessorKey: "name",
+      header: "Nama",
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+    },
+    {
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) =>
+        row.original.role === "admin" ? (
+          <Badge variant="destructive">Admin</Badge>
+        ) : (
+          <Badge variant="secondary">User</Badge>
+        ),
+    },
+    {
+      accessorKey: "address",
+      header: "Alamat",
+      cell: ({ row }) => row.original.address || "-",
+    },
+    {
+      accessorKey: "phone",
+      header: "No HP",
+      cell: ({ row }) => row.original.phone || "-",
+    },
+    {
+      id: "actions",
+      header: "Aksi",
+      cell: ({ row }) => (
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => handleEdit(row.original)}
+          >
+            Edit
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-red-600 border-red-200 hover:bg-red-50"
+            onClick={() =>
+              confirm("Yakin hapus user ini?") &&
+              router.delete(`/admin/users/${row.original.id}`)
+            }
+          >
+            Hapus
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <AppLayout breadcrumbs={[{ title: "User Settings", href: "/admin/users" }]}>
+    <AppLayout
+      breadcrumbs={[{ title: "User Settings", href: "/admin/users" }]}
+    >
       <Head title="Admin User Settings" />
 
-      <div className="p-4 space-y-4">
+      <div className="p-6 space-y-6">
 
-        {/* FORM EDIT USER */}
-        {isEditing && (
-          <div className="border p-4 rounded-xl bg-white shadow-sm">
-            <h2 className="text-lg font-semibold mb-3">Edit User</h2>
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold">
+            Manajemen User
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Kelola semua akun user dan admin.
+          </p>
+        </div>
 
-            <form onSubmit={submit} className="grid grid-cols-4 gap-3">
-              <input
-                placeholder="Name"
-                value={data.name}
-                onChange={(e) => setData("name", e.target.value)}
-                className="border p-2 rounded"
-              />
-
-              <input
-                placeholder="Email"
-                value={data.email}
-                onChange={(e) => setData("email", e.target.value)}
-                className="border p-2 rounded"
-              />
-
-              <select
-                value={data.role}
-                onChange={(e) => setData("role", e.target.value as any)}
-                className="border p-2 rounded"
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-
-              <input
-                placeholder="Alamat Pengiriman"
-                value={data.address}
-                onChange={(e) => setData("address", e.target.value)}
-                className="border p-2 rounded col-span-4"
-              />
-
-              <input
-                placeholder="nomor telepon"
-                value={data.phone}
-                onChange={(e) => setData("phone", e.target.value)}
-                className="border p-2 rounded col-span-4"
-              />
-
-              <div className="col-span-4 flex gap-2">
-                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                  Update
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    reset();
-                  }}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {/* SEARCH */}
-        <input
-          type="text"
+        {/* Search */}
+        <Input
           placeholder="Cari nama / email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="border px-3 py-2 rounded-lg w-full"
+          className="max-w-sm"
         />
 
-        {/* TABLE USER */}
-        <div className="border p-4 rounded-xl bg-white shadow-sm">
-          <h2 className="text-lg font-semibold mb-3">Daftar User</h2>
+        {/* Table */}
+        <DataTable columns={columns} data={filteredUsers} />
 
-          <table className="w-full border-collapse border border-gray-200">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2 text-left">Name</th>
-                <th className="border p-2 text-left">Email</th>
-                <th className="border p-2 text-left">Role</th>
-                <th className="border p-2 text-left">Address</th>
-                <th className="border p-2 text-left">nomor hp</th>
-                <th className="border p-2 text-left">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="text-center p-4 text-gray-400">
-                    User gak ketemu.
-                  </td>
-                </tr>
-              ) : (
-                filteredUsers.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50">
-                    <td className="border p-2">{u.name}</td>
-                    <td className="border p-2">{u.email}</td>
-                    <td className="border p-2 font-semibold">
-                      {u.role === "admin" ? "🛡 Admin" : "👤 User"}
-                    </td>
-                    <td className="border p-2">{u.address || "-"}</td>
-                    <td className="border p-2">{u.phone || "-"}</td>
-                    <td className="border p-2 flex gap-2">
-                      <button
-                        onClick={() => handleEdit(u)}
-                        className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          confirm("Yakin hapus user ini?") &&
-                          router.delete(`/admin/users/${u.id}`)
-                        }
-                        className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
       </div>
     </AppLayout>
   );
