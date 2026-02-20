@@ -62,76 +62,6 @@ export default function Products({ products }: Props) {
 
       <div className="p-4 space-y-4">
 
-        {/* FORM */}
-        <div className="border p-4 rounded-xl bg-white shadow-sm">
-          <h2 className="text-lg font-semibold mb-3">
-            {isEditing ? "Edit Produk" : "Tambah Produk"}
-          </h2>
-
-          <form onSubmit={submit} className="grid grid-cols-4 gap-3">
-            <input
-              placeholder="Name"
-              value={data.name}
-              onChange={(e) => setData("name", e.target.value)}
-              className="border p-2 rounded"
-            />
-
-            <input
-              placeholder="Price"
-              type="number"
-              value={data.price}
-              onChange={(e) => setData("price", e.target.value)}
-              className="border p-2 rounded"
-            />
-
-            <input
-              placeholder="Stock"
-              type="number"
-              value={data.stock}
-              onChange={(e) => setData("stock", e.target.value)}
-              className="border p-2 rounded"
-            />
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) =>
-                setData("image", e.target.files ? e.target.files[0] : null)
-              }
-              className="border p-2 rounded"
-            />
-
-            <input
-              placeholder="Deskripsi"
-              value={data.description}
-              onChange={(e) => setData("description", e.target.value)}
-              className="border p-2 rounded col-span-4"
-            />
-
-            <div className="col-span-4 flex gap-2">
-              <button
-                className={`px-4 py-2 rounded text-white ${
-                  isEditing ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"
-                }`}
-              >
-                {isEditing ? "Update" : "Add"}
-              </button>
-
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    reset();
-                  }}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
 
         {/* SEARCH */}
         <input
@@ -145,13 +75,19 @@ export default function Products({ products }: Props) {
         {/* TABLE */}
         <div className="border p-4 rounded-xl bg-white shadow-sm">
           <h2 className="text-lg font-semibold mb-3">Daftar Produk</h2>
-
+        <button
+          onClick={() => router.get("/admin/products/create")}
+          className="mb-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+        >
+          Tambah Produk
+        </button>
           <table className="w-full border-collapse border border-gray-200">
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2 text-left">Name</th>
                 <th className="border p-2 text-left">Price</th>
                 <th className="border p-2 text-left">Stock</th>
+                <th className="border p-2 text-left">Image</th>
                 <th className="border p-2 text-left">Aksi</th>
               </tr>
             </thead>
@@ -168,9 +104,21 @@ export default function Products({ products }: Props) {
                     <td className="border p-2">{p.name}</td>
                     <td className="border p-2">Rp {p.price.toLocaleString()}</td>
                     <td className="border p-2">{p.stock}</td>
+                   <td className="border p-2">
+                      {p.image ? (
+                        <img
+                          src={`/storage/${p.image}`}
+                          alt={p.name}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      ) : (
+                        <span className="text-gray-400 text-sm">No Image</span>
+                      )}
+                    </td>
                     <td className="border p-2 flex gap-2">
                       <button
-                        onClick={() => handleEdit(p)}
+                        onClick={() => router.get(`/admin/products/${p.id}/edit`)}
+
                         className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
                       >
                         Edit

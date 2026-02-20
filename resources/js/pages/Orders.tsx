@@ -1,15 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 
-const STATUS_OPTIONS = [
-  "all",
-  "pending",
-  "paid",
-  "packing",
-  "shipped",
-  "completed",
-] as const;
-
 type Product = {
   id: number;
   name: string;
@@ -25,6 +16,8 @@ type Order = {
   id: number;
   status: "pending" | "paid" | "packing" | "shipped" | "completed";
   total: number;
+  payment_method: string; // dibuat fleksibel
+  created_at: string;
   order_items: OrderItem[];
 };
 
@@ -36,9 +29,14 @@ export default function Orders({ orders }: Props) {
   const [statusFilter, setStatusFilter] =
     useState<"all" | Order["status"]>("all");
 
-  const [loading, setLoading] = useState(false);
+  const [paymentFilter, setPaymentFilter] =
+    useState<"all" | "COD" | "VA">("all");
 
-  // ✅ AUTO REFRESH
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  // AUTO REFRESH
   useEffect(() => {
     const interval = setInterval(() => {
       router.reload({
@@ -51,10 +49,43 @@ export default function Orders({ orders }: Props) {
   }, []);
 
   const filteredOrders = useMemo(() => {
-    return statusFilter === "all"
-      ? orders
-      : orders.filter((o) => o.status === statusFilter);
-  }, [orders, statusFilter]);
+    return orders.filter((order) => {
+      const statusMatch =
+        statusFilter === "all" || order.status === statusFilter;
+
+      const payment = order.payment_method?.toLowerCase() || "";
+
+      const paymentMatch =
+        paymentFilter === "all" ||
+        (paymentFilter === "COD" && payment.includes("cod")) ||
+        (paymentFilter === "VA" &&
+          (payment.includes("va") ||
+            payment.includes("bank") ||
+            payment.includes("transfer")));
+
+      const searchMatch =
+        search.trim() === "" ||
+        order.id.toString().includes(search.trim());
+
+      const orderDate = new Date(order.created_at).setHours(0, 0, 0, 0);
+
+      const fromMatch =
+        !dateFrom ||
+        orderDate >= new Date(dateFrom).setHours(0, 0, 0, 0);
+
+      const toMatch =
+        !dateTo ||
+        orderDate <= new Date(dateTo).setHours(23, 59, 59, 999);
+
+      return (
+        statusMatch &&
+        paymentMatch &&
+        searchMatch &&
+        fromMatch &&
+        toMatch
+      );
+    });
+  }, [orders, statusFilter, paymentFilter, search, dateFrom, dateTo]);
 
   const statusColor: Record<Order["status"], string> = {
     pending: "bg-yellow-100 text-yellow-700",
@@ -72,140 +103,152 @@ export default function Orders({ orders }: Props) {
     completed: "✅",
   };
 
-  const changeFilter = (s: any) => {
-    setLoading(true);
-    setStatusFilter(s);
-    setTimeout(() => setLoading(false), 250);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-300 to-cyan-100">
       <Head title="Pesanan Saya" />
 
       <div className="max-w-7xl mx-auto p-6">
-        {/* ✅ HEADER BARU */}
-        <div className="flex items-center gap-3 mb-5">
+        {/* HEADER */}
+        <div className="flex items-center gap-3 mb-6">
           <Link
             href={route("shop")}
-            className="px-4 py-2 rounded-xl bg-white/90 backdrop-blur shadow">
+            className="px-4 py-2 rounded-xl bg-white shadow"
+          >
             🏠
           </Link>
 
-          <div className="px-4 py-2 rounded-xl bg-white/90 backdrop-blur shadow">
+          <div className="px-4 py-2 rounded-xl bg-white shadow">
             <h1 className="text-lg font-bold text-blue-900">
               Pesanan Saya 📦
             </h1>
           </div>
         </div>
 
-        {/* ✅ FILTER */}
-        <div className="flex gap-3 flex-wrap">
-          {STATUS_OPTIONS.map((status) => {
-            const active = statusFilter === status;
+        {/* FILTER */}
+        <div className="bg-white rounded-2xl shadow p-4 grid md:grid-cols-3 gap-4">
+          
+          {/* STATUS */}
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">
+              Status
+            </label>
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as any)
+              }
+              className="w-full border rounded-lg px-3 py-2"
+            >
+              <option value="all">Semua</option>
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="packing">Packing</option>
+              <option value="shipped">Shipped</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
 
-            return (
-              <button
-                key={status}
-                onClick={() => changeFilter(status)}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${
-                  active
-                    ? "bg-blue-600 text-white shadow-lg scale-105"
-                    : "bg-white/80 backdrop-blur border border-white hover:bg-white"
-                }`}
-              >
-                {status.toUpperCase()}
-              </button>
-            );
-          })}
+          {/* PAYMENT */}
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">
+              Pembayaran
+            </label>
+            <select
+              value={paymentFilter}
+              onChange={(e) =>
+                setPaymentFilter(e.target.value as any)
+              }
+              className="w-full border rounded-lg px-3 py-2"
+            >
+              <option value="all">Semua</option>
+              <option value="COD">COD</option>
+              <option value="VA">Bank / VA</option>
+            </select>
+          </div>
+
+          {/* SEARCH */}
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">
+              Cari Order ID
+            </label>
+            <input
+              type="text"
+              placeholder="Contoh: 12"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
         </div>
 
-        {/* ✅ LIST */}
+        {/* ORDER LIST */}
         <div className="mt-8">
-          {loading ? (
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-32 rounded-3xl bg-white/70 animate-pulse"
-                />
-              ))}
-            </div>
-          ) : filteredOrders.length === 0 ? (
-            <div className="bg-white/90 backdrop-blur rounded-3xl shadow-xl p-10 text-center">
+          {filteredOrders.length === 0 ? (
+            <div className="bg-white rounded-3xl shadow-xl p-10 text-center">
               <div className="text-5xl mb-3">🧾</div>
               <p className="text-gray-500">
-                Belum ada pesanan di kategori ini.
+                Tidak ada pesanan ditemukan.
               </p>
-
-              <Link
-                href={route("shop")}
-                className="inline-block mt-5 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-900 shadow hover:shadow-xl hover:-translate-y-0.5 transition"
-              >
-                Mulai Belanja
-              </Link>
             </div>
           ) : (
-            <div className="grid gap-5 animate-fade">
-              {filteredOrders.map((order) => (
-                <Link
-                  key={order.id}
-                  href={route("orders.show", order.id)}
-                  className="block bg-white/95 backdrop-blur rounded-3xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition p-6"
-                >
-                  {/* TOP */}
-                  <div className="flex justify-between items-center">
-                    <p className="font-bold text-lg text-blue-900">
-                      Order #{order.id}
-                    </p>
+            <div className="grid gap-5">
+              {filteredOrders.map((order) => {
+                const payment = order.payment_method?.toLowerCase() || "";
 
-                    <span
-                      className={`px-3 py-1 rounded-lg text-xs font-bold capitalize flex items-center gap-1 ${
-                        statusColor[order.status]
-                      }`}
-                    >
-                      {statusIcon[order.status]} {order.status}
-                    </span>
-                  </div>
+                return (
+                  <Link
+                    key={order.id}
+                    href={route("orders.show", order.id)}
+                    className="block bg-white rounded-3xl shadow-lg hover:shadow-2xl transition p-6"
+                  >
+                    <div className="flex justify-between items-center">
+                      <p className="font-bold text-lg text-blue-900">
+                        Order #{order.id}
+                      </p>
 
-                  {/* ITEMS */}
-                  <div className="mt-4 space-y-1 text-sm text-gray-600">
-                    {order.order_items.slice(0, 3).map((item) => (
-                      <div key={item.id}>
-                        • {item.product.name} x {item.quantity}
-                      </div>
-                    ))}
+                      <span
+                        className={`px-3 py-1 rounded-lg text-xs font-bold capitalize flex items-center gap-1 ${
+                          statusColor[order.status]
+                        }`}
+                      >
+                        {statusIcon[order.status]} {order.status}
+                      </span>
+                    </div>
 
-                    {order.order_items.length > 3 && (
-                      <div className="text-xs text-gray-400">
-                        + {order.order_items.length - 3} produk lainnya
-                      </div>
-                    )}
-                  </div>
+                    {/* PAYMENT BADGE */}
+                    <div className="mt-2">
+                      {payment.includes("cod") ? (
+                        <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-lg text-xs font-semibold">
+                          💵 COD
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-semibold">
+                          🏦 Bank / VA
+                        </span>
+                      )}
+                    </div>
 
-                  {/* TOTAL */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <span className="text-sm text-gray-500">Total</span>
-                    <span className="text-xl font-extrabold text-blue-700">
-                      Rp {Number(order.total).toLocaleString()}
-                    </span>
-                  </div>
-                </Link>
-              ))}
+                    <div className="mt-4 text-sm text-gray-600">
+                      {order.order_items.slice(0, 3).map((item) => (
+                        <div key={item.id}>
+                          • {item.product.name} x {item.quantity}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-5 flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Total</span>
+                      <span className="text-xl font-extrabold text-blue-700">
+                        Rp {Number(order.total).toLocaleString()}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
       </div>
-
-      {/* ANIMATION */}
-      <style>{`
-        .animate-fade {
-          animation: fade .25s ease;
-        }
-        @keyframes fade {
-          from { opacity: 0; transform: translateY(4px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

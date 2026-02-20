@@ -11,10 +11,16 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Admin/Products', [
+        return Inertia::render('Admin/product/index-products', [
             'products' => Product::latest()->get()
         ]);
     }
+
+    public function create()
+    {
+        return Inertia::render('Admin/product/create-products');
+    }
+
 
     public function store(Request $request)
     {
@@ -32,11 +38,18 @@ class ProductController extends Controller
         }
 
         Product::create($data);
-        return redirect()->back();
-
-       
+        return redirect()->route('admin.products.index');
 
     }
+
+
+        public function edit(Product $product)
+        {
+            return Inertia::render('Admin/product/update-products', [
+                'product' => $product
+            ]);
+        }
+
 
         public function update(Request $request, Product $product)
         {
@@ -55,7 +68,8 @@ class ProductController extends Controller
 
             $product->update($data);
 
-            return redirect()->back();
+            return redirect()->route('admin.products.index');
+
         }   
 
 

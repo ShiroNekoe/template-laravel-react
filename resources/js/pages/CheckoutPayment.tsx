@@ -1,6 +1,8 @@
 import { router, Head, Link } from "@inertiajs/react";
 import { useState } from "react";
 
+
+
 export default function CheckoutPayment({ cart }: { cart: any[] }) {
   const total = cart.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -15,6 +17,8 @@ export default function CheckoutPayment({ cart }: { cart: any[] }) {
       router.post(route("order.store"), { method });
     }, 250);
   };
+
+  
 
   const base =
     "relative text-left p-5 rounded-2xl border-2 transition-all duration-300 w-full bg-white hover:-translate-y-1 hover:shadow-2xl";

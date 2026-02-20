@@ -146,6 +146,23 @@ export default function OrderDetail({ order }: Props) {
                 <p className="font-bold text-blue-700">
                   Rp {Number(item.price * item.quantity).toLocaleString()}
                 </p>
+
+                {/* STATUS BADGE */}
+                <div className="mt-4 flex items-center gap-4 flex-wrap">
+                  <span className="px-4 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700 capitalize">
+                    {order.status}
+                  </span>
+
+                  {order.status === "pending" && (
+                    <Link
+                      href={route("orders.pay", order.id)}
+                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition"
+                    >
+                      💳 Bayar Sekarang
+                    </Link>
+                  )}
+                </div>
+
               </div>
             ))}
           </div>

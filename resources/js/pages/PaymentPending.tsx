@@ -12,7 +12,7 @@ export default function PaymentPending({ flash }: any) {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-yellow-500 via-yellow-200 to-white">
-      <Head title="Pembayaran Gagal" />
+      <Head title="Menunggu Pembayaran" />
 
       {/* ⏳ hujan X */}
       {showMarks && (
@@ -47,12 +47,12 @@ export default function PaymentPending({ flash }: any) {
 
           {/* TITLE */}
           <h1 className="text-4xl font-extrabold text-yellow-800 tracking-tight">
-            Menunggu Pembayaran COD{showMarks}
+            Menunggu pembayaran{showMarks}
           </h1>
 
           {/* SUB */}
           <p className="text-gray-600 mt-4 leading-relaxed">
-            Kurir lagi jalan. Kamu bayar pas barang sampai.
+            Terima kasih telah melakukan pemesanan. Silakan siapkan pembayaran
           </p>
 
           {flash?.order_id && (
@@ -63,7 +63,7 @@ export default function PaymentPending({ flash }: any) {
 
           {/* MINI INFO */}
           <div className="mt-8 space-y-2 text-sm text-gray-500">
-            <p>🚚 Kurir akan menghubungi kamu</p>
+            <p>jangan lupa untuk membayar</p>
             <p>
               📦 Status: <span className="font-bold">Pending</span>
             </p>

@@ -11,7 +11,7 @@ class UserController extends Controller
 {
    public function index()
 {
-    return inertia('Admin/Users', [
+    return inertia('Admin/user/Users', [
         'users' => \App\Models\User::latest()->get()
     ]);
 }

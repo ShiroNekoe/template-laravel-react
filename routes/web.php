@@ -44,15 +44,12 @@ Route::middleware('auth')->group(function(){
     Route::get('/orders', [OrderController::class, 'index'])
         ->name('orders.index');
 
-    // STEP 1 — halaman pilih metode pembayaran
     Route::get('/checkout/payment', [CheckoutController::class, 'payment'])
         ->name('checkout.payment');
 
-    // STEP 2 — proses pembayaran (COD / Transfer)
     Route::post('/checkout/process', [CheckoutController::class, 'process'])
         ->name('checkout.process');
 
-    // STEP 3 — hasil pembayaran
     Route::get('/payment/success', fn () =>
         Inertia::render('PaymentSuccess')
     )->name('payment.success');
@@ -65,9 +62,7 @@ Route::middleware('auth')->group(function(){
         Inertia::render('PaymentPending')
     )->name('payment.pending');
     
-    
-
-    // Simpan order (opsional, kalau mau pisah dari checkout)
+  
     Route::post('/orders', [OrderController::class, 'store'])
         ->name('order.store');
 
@@ -76,9 +71,13 @@ Route::middleware('auth')->group(function(){
     
     Route::get('/settinguser', [UserController::class, 'edit'])->name('settings.edit');
     Route::put('/settinguser', [UserController::class, 'update'])->name('settings.update');
-});
-
-
+    
+    });
+    
+    Route::get('/orders/{order}/pay', [OrderController::class, 'pay'])
+    ->name('orders.pay');
+  Route::post('/midtrans/callback', [OrderController::class, 'callback']);
+    
 
 /*
 |--------------------------------------------------------------------------

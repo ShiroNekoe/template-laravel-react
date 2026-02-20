@@ -9,7 +9,7 @@ class OrderAdminController extends Controller
 {
  public function index()
 {
-    return inertia('Admin/AdminOrdersDashboard', [
+    return inertia('Admin/order/AdminOrdersDashboard', [
         'orders' => [
             'pending' => Order::with('user')->where('status', 'pending')->latest()->get(),
             'paid' => Order::with('user')->where('status', 'paid')->latest()->get(),
@@ -25,7 +25,7 @@ class OrderAdminController extends Controller
 {
     $order->load(['user', 'items.product']);
 
-    return inertia('Admin/AdminOrderDetail', [
+    return inertia('Admin/order/AdminOrderDetail', [
         'order' => $order,
     ]);
 }
