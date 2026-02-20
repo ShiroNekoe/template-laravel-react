@@ -1,6 +1,8 @@
 import { useForm, router, Link, Head, usePage } from "@inertiajs/react";
 import type { Product } from "@/types";
 import { useState } from "react";
+import StaggeredMenu from "@/components/staggeredmenu";
+
 
 type AuthUser = {
   id: number;
@@ -177,37 +179,36 @@ export default function Shop({ products, search = "" }: Props) {
               👤 {auth.user.name}
             </button>
 
-          {openMenu && (
-  <div className="absolute right-0 mt-2 w-44 bg-white border rounded-xl shadow-md overflow-hidden">
-    <Link
-      href="/cart"
-      className="block px-4 py-2 text-sm hover:bg-blue-50"
-    >
-      🛒 Cart
-    </Link>
-
-    <Link
-      href={route("orders.index")}
-      className="block px-4 py-2 text-sm hover:bg-blue-50"
-    >
-      📦 My Orders
-    </Link>
-
-    <Link
-      href={route("settings.edit")}
-      className="block px-4 py-2 text-sm hover:bg-gray-100"
-    >
-      ⚙️ Settings
-    </Link>
-
-    <button
-      onClick={() => router.post(route("logout"))}
-      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-    >
-      🚪 Logout
-    </button>
-  </div>
+   {openMenu && auth?.user && (
+  <StaggeredMenu
+    user={{
+      name: auth.user.name,
+      email: auth.user.email,
+    }}
+    onClose={() => setOpenMenu(false)}
+    items={[
+      {
+        label: "🛒 Cart",
+        onClick: () => router.visit("/cart"),
+      },
+      {
+        label: "📦 My Orders",
+        onClick: () => router.visit(route("orders.index")),
+      },
+      {
+        label: "⚙️ Settings",
+        onClick: () => router.visit(route("settings.edit")),
+      },
+      {
+        label: "🚪 Logout",
+        onClick: () => router.post(route("logout")),
+        className: "text-red-600 hover:bg-red-50",
+      },
+    ]}
+  />
 )}
+
+
 
           </div>
 

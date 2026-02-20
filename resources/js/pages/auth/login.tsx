@@ -3,6 +3,8 @@ import { LoaderCircle } from "lucide-react";
 import { FormEventHandler } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import GradientText from "@/components/gradienttext";
+
 
 import InputError from "@/components/input-error";
 import TextLink from "@/components/text-link";
@@ -65,9 +67,10 @@ export default function Login({ status, canResetPassword }: LoginProps) {
               </div>
             </div>
 
-            <h1 className="text-4xl font-extrabold tracking-wide">
-              TokoLU
-            </h1>
+            <GradientText className="text-4xl font-extrabold tracking-wide">
+  TokoLU
+</GradientText>
+
 
             <p className="mt-3 text-blue-100 text-lg">
               Belanja cepat, aman, tanpa ribet.
