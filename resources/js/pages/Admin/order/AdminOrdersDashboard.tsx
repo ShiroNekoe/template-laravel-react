@@ -1,88 +1,145 @@
-import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import { useState } from "react";
+import AppLayout from "@/layouts/app-layout"
+import { Head, Link } from "@inertiajs/react"
+import { useMemo, useState } from "react"
+import { ColumnDef } from "@tanstack/react-table"
+
+import { DataTable } from "@/components/data-table"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 
 type Order = {
-  id: number;
-  status: "pending" | "paid" | "packing" | "shipped" | "completed";
-  total: number;
-  user: { name: string };
-  created_at: string;
-};
+  id: number
+  status: "pending" | "paid" | "packing" | "shipped" | "completed"
+  total: number
+  user: { name: string }
+  created_at: string
+}
 
 type Props = {
   orders: {
-    pending: Order[];
-    paid: Order[];
-    packing: Order[];
-    shipped: Order[];
-    completed: Order[];
-  };
-};
+    pending: Order[]
+    paid: Order[]
+    packing: Order[]
+    shipped: Order[]
+    completed: Order[]
+  }
+}
 
 export default function AdminOrdersDashboard({ orders }: Props) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
 
-  const filterOrders = (orders: Order[]) =>
-    orders.filter(order =>
-      order.id.toString().includes(search) ||
-      order.user.name.toLowerCase().includes(search.toLowerCase())
-    );
+  // 🔥 Flatten semua status jadi satu array
+  const allOrders: Order[] = useMemo(() => {
+    return Object.values(orders).flat()
+  }, [orders])
+
+  // 🔎 Filtering logic
+  const filteredOrders = useMemo(() => {
+    return allOrders.filter((order) => {
+      const matchSearch =
+        order.id.toString().includes(search) ||
+        order.user.name.toLowerCase().includes(search.toLowerCase())
+
+      const matchStatus =
+        statusFilter === "all" || order.status === statusFilter
+
+      return matchSearch && matchStatus
+    })
+  }, [allOrders, search, statusFilter])
+
+  const columns: ColumnDef<Order>[] = [
+    {
+      accessorKey: "id",
+      header: "Order ID",
+      cell: ({ row }) => (
+        <Link
+          href={route("admin.orders.show", row.original.id)}
+          className="font-semibold hover:underline"
+        >
+          #{row.original.id}
+        </Link>
+      ),
+    },
+    {
+      accessorKey: "user",
+      header: "Customer",
+      cell: ({ row }) => row.original.user.name,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <span className="capitalize">
+          {row.original.status}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "total",
+      header: "Total",
+      cell: ({ row }) =>
+        `Rp ${Number(row.original.total).toLocaleString()}`,
+    },
+    {
+      accessorKey: "created_at",
+      header: "Created",
+      cell: ({ row }) =>
+        new Date(row.original.created_at).toLocaleString(),
+    },
+  ]
 
   return (
-    <AppLayout breadcrumbs={[{ title: 'Admin Orders', href: '/admin/orders' }]}>
-      <Head title="Admin Order Flow" />
+    <AppLayout
+      breadcrumbs={[
+        { title: "Orders", href: "/admin/orders" },
+      ]}
+    >
+      <Head title="Admin Orders" />
 
-      <div className="p-4 space-y-4">
-        <h1 className="text-2xl font-bold">Order Flow</h1>
+      <div className="p-6 space-y-6">
+        <h1 className="text-2xl font-bold">
+          Manage Orders
+        </h1>
 
-        <input
-          type="text"
-          placeholder="Cari Order ID atau Nama Customer..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border px-3 py-2 rounded-lg w-full"
-        />
+        {/* FILTER AREA */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <Input
+            placeholder="Cari Order ID atau Customer..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-sm"
+          />
 
-        <div className="grid grid-cols-5 gap-5">
-          {(["pending","paid", "packing", "shipped", "completed"] as const).map(
-            (status) => (
-              <div key={status} className="border p-4 rounded-xl">
-                <h2 className="font-semibold capitalize mb-2">
-                  {status}
-                </h2>
-
-                <div className="space-y-2 max-h-72 overflow-y-auto">
-                  {orders[status].length === 0 ? (
-                    <p className="text-sm text-gray-400">Kosong.</p>
-                  ) : filterOrders(orders[status]).length === 0 ? (
-                    <p className="text-sm text-gray-400">Gak ketemu.</p>
-                  ) : (
-                    filterOrders(orders[status]).map((order) => (
-                      <Link
-                        key={order.id}
-                        href={route("admin.orders.show", order.id)}
-                        className="block border p-3 rounded-lg hover:bg-gray-50"
-                      >
-                        <p className="font-semibold">Order #{order.id}</p>
-                        <p className="text-xs text-gray-500">
-                          {order.user.name}
-                        </p>
-                        <p className="text-sm">
-                          Rp {Number(order.total).toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(order.created_at).toLocaleString()}
-                        </p>
-                      </Link>
-                    ))
-                  )}
-                </div>
-              </div>
-            )
-          )}
+          <Select
+            value={statusFilter}
+            onValueChange={(value) =>
+              setStatusFilter(value)
+            }
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="packing">Packing</SelectItem>
+              <SelectItem value="shipped">Shipped</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+
+        {/* DATA TABLE */}
+        <DataTable columns={columns} data={filteredOrders} />
       </div>
     </AppLayout>
-  );
+  )
 }

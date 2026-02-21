@@ -4,6 +4,7 @@ import {
   RowSelectionState,
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown } from "lucide-react"
+import { toast } from "sonner"
 
 import { DataTable } from "@/components/data-table"
 import { Input } from "@/components/ui/input"
@@ -29,13 +30,11 @@ export default function Products({ products }: Props) {
   const [rowSelection, setRowSelection] =
     useState<RowSelectionState>({})
 
-  // 🔎 Filter Search
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   )
 
-  // 📊 Columns Definition
-const columns: ColumnDef<Product, any>[] = [
+  const columns: ColumnDef<Product, any>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -48,7 +47,6 @@ const columns: ColumnDef<Product, any>[] = [
           onCheckedChange={(value) =>
             table.toggleAllPageRowsSelected(!!value)
           }
-          aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
@@ -57,7 +55,6 @@ const columns: ColumnDef<Product, any>[] = [
           onCheckedChange={(value) =>
             row.toggleSelected(!!value)
           }
-          aria-label="Select row"
         />
       ),
       enableSorting: false,
@@ -141,12 +138,26 @@ const columns: ColumnDef<Product, any>[] = [
             size="sm"
             variant="ghost"
             className="text-red-500 hover:bg-red-50 hover:text-red-600"
-            onClick={() =>
-              confirm("Yakin hapus?") &&
+            onClick={() => {
+              if (!confirm("Yakin hapus?")) return
+
               router.delete(
-                `/admin/products/${row.original.id}`
+                `/admin/products/${row.original.id}`,
+                {
+                  preserveScroll: true,
+                  onSuccess: () => {
+                    toast.success(
+                      "Produk berhasil dihapus 🗑️"
+                    )
+                  },
+                  onError: () => {
+                    toast.error(
+                      "Gagal menghapus produk ❌"
+                    )
+                  },
+                }
               )
-            }
+            }}
           >
             Hapus
           </Button>
@@ -159,7 +170,7 @@ const columns: ColumnDef<Product, any>[] = [
     <AppLayout
       breadcrumbs={[
         {
-          title: "Kelola Produk",
+          title: "Products",
           href: "/admin/products",
         },
       ]}
@@ -167,8 +178,6 @@ const columns: ColumnDef<Product, any>[] = [
       <Head title="Manage Products" />
 
       <div className="p-6 space-y-6">
-
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">
@@ -179,18 +188,10 @@ const columns: ColumnDef<Product, any>[] = [
             </p>
           </div>
 
-          <Button
-            onClick={() =>
-              router.get("/admin/products/create")
-            }
-          >
-            Tambah Produk
-          </Button>
+          
         </div>
 
-        {/* Filter + Bulk + Column Toggle */}
         <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-
           <Input
             placeholder="Cari produk..."
             value={search}
@@ -201,11 +202,10 @@ const columns: ColumnDef<Product, any>[] = [
           />
 
           <div className="flex items-center gap-2">
-
             {Object.keys(rowSelection).length > 0 && (
               <Button
                 variant="outline"
-className="text-red-500 border-red-200 hover:bg-red-50"
+                className="text-red-500 border-red-200 hover:bg-red-50"
                 onClick={() => {
                   const selectedIds =
                     Object.keys(rowSelection).map(
@@ -216,14 +216,28 @@ className="text-red-500 border-red-200 hover:bg-red-50"
                     )
 
                   if (
-                    confirm("Hapus produk terpilih?")
-                  ) {
-                    selectedIds.forEach((id) =>
-                      router.delete(
-                        `/admin/products/${id}`
-                      )
+                    !confirm(
+                      "Hapus produk terpilih?"
                     )
-                  }
+                  )
+                    return
+
+                  selectedIds.forEach((id) => {
+                    if (!id) return
+
+                    router.delete(
+                      `/admin/products/${id}`,
+                      {
+                        preserveScroll: true,
+                      }
+                    )
+                  })
+
+                  toast.success(
+                    "Produk terpilih berhasil dihapus 🗑️"
+                  )
+
+                  setRowSelection({})
                 }}
               >
                 Hapus Terpilih (
@@ -231,47 +245,22 @@ className="text-red-500 border-red-200 hover:bg-red-50"
               </Button>
             )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  Columns
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent align="end">
-                {columns
-                  .filter(
-                    (column) =>
-                      column.id !== "actions" &&
-                      column.id !== "select"
-                  )
-                  .map((column) => (
-                    <DropdownMenuCheckboxItem
-                      key={
-                        column.id ??
-                        (column.accessorKey as string)
-                      }
-                      className="capitalize"
-                    >
-                      {column.id ??
-                        column.accessorKey}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
+          <Button
+            onClick={() =>
+              router.get("/admin/products/create")
+            }
+          >
+            Tambah Produk
+          </Button>
           </div>
         </div>
 
-        {/* Data Table */}
         <DataTable
           columns={columns}
           data={filteredProducts}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
         />
-
       </div>
     </AppLayout>
   )

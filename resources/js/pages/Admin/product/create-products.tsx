@@ -1,6 +1,7 @@
 import AppLayout from "@/layouts/app-layout";
 import { Head, useForm } from "@inertiajs/react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function CreateProduct() {
   const { data, setData, post, processing } = useForm({
@@ -18,6 +19,23 @@ export default function CreateProduct() {
 
     post("/admin/products", {
       forceFormData: true,
+      onSuccess: () => {
+        toast.success("Produk berhasil dibuat 🚀");
+
+        // reset form
+        setData({
+          name: "",
+          price: "",
+          stock: "",
+          description: "",
+          image: null,
+        });
+
+        setPreview(null);
+      },
+      onError: () => {
+        toast.error("Gagal membuat produk ❌");
+      },
     });
   }
 
@@ -36,17 +54,20 @@ export default function CreateProduct() {
   }
 
   return (
-    <AppLayout breadcrumbs={[{ title: "Create Product", href: "/admin/products/create" }]}>
+    <AppLayout
+      breadcrumbs={[
+        { title: "Products", href: "/admin/products" },
+        { title: "Create Product", href: "/admin/products/create" },
+      ]}
+    >
       <Head title="Create Product" />
 
       <div className="p-8 max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Tambah Produk Baru</h1>
 
         <form onSubmit={submit} className="grid grid-cols-2 gap-10">
-
           {/* LEFT SIDE - FORM */}
           <div className="space-y-5">
-
             <div>
               <label className="block mb-1 font-medium">Nama Produk</label>
               <input
@@ -87,29 +108,32 @@ export default function CreateProduct() {
             </div>
 
             <div>
-              <label className="block mb-2 font-medium">Upload Gambar</label>
+              <label className="block mb-2 font-medium">
+                Upload Gambar
+              </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) =>
-                  handleImageChange(e.target.files ? e.target.files[0] : null)
+                  handleImageChange(
+                    e.target.files ? e.target.files[0] : null
+                  )
                 }
                 className="w-full"
               />
             </div>
 
             <button
+              type="submit"
               disabled={processing}
-              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
+              className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg transition"
             >
-              Simpan Produk
+              {processing ? "Menyimpan..." : "Simpan Produk"}
             </button>
-
           </div>
 
           {/* RIGHT SIDE - IMAGE PREVIEW */}
           <div className="flex items-center justify-center border border-dashed border-gray-300 rounded-xl min-h-[400px] bg-gray-50">
-
             {preview ? (
               <img
                 src={preview}
@@ -119,12 +143,12 @@ export default function CreateProduct() {
             ) : (
               <div className="text-gray-400 text-center">
                 <p className="text-lg">Preview Gambar</p>
-                <p className="text-sm mt-2">Belum ada gambar dipilih</p>
+                <p className="text-sm mt-2">
+                  Belum ada gambar dipilih
+                </p>
               </div>
             )}
-
           </div>
-
         </form>
       </div>
     </AppLayout>

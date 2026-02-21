@@ -1,5 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, router, Link } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
+import { toast } from "sonner";
+import { useState } from "react";
 
 type OrderItem = {
   id: number;
@@ -15,7 +17,7 @@ type Props = {
     payment_method: string;
     total: number;
     created_at: string;
-    user: { name: string; email: string; address: string;phone: string};
+    user: { name: string; email: string; address: string; phone: string };
     items: OrderItem[];
   };
 };
@@ -24,10 +26,24 @@ const STATUS_FLOW = ["pending", "paid", "packing", "shipped", "completed"] as co
 
 export default function AdminOrderDetail({ order }: Props) {
   const currentIndex = STATUS_FLOW.indexOf(order.status);
+  const [processing, setProcessing] = useState(false);
 
   const updateStatus = (nextStatus: typeof STATUS_FLOW[number]) => {
+    setProcessing(true);
+
     router.post(route("admin.orders.updateStatus", order.id), {
       status: nextStatus,
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        toast.success(`Status berhasil diubah ke ${nextStatus} 🚀`);
+      },
+      onError: () => {
+        toast.error("Gagal mengubah status ❌");
+      },
+      onFinish: () => {
+        setProcessing(false);
+      }
     });
   };
 
@@ -38,7 +54,7 @@ export default function AdminOrderDetail({ order }: Props) {
 
   return (
     <AppLayout breadcrumbs={[
-      { title: "Admin Orders", href: "/admin/orders" },
+      { title: "Orders", href: "/admin/orders" },
       { title: `Order #${order.id}`, href: "#" },
     ]}>
       <Head title={`Order #${order.id}`} />
@@ -51,10 +67,11 @@ export default function AdminOrderDetail({ order }: Props) {
 
           {nextStatus && (
             <button
+              disabled={processing}
               onClick={() => updateStatus(nextStatus)}
-              className="px-4 py-2 bg-black text-white rounded-lg"
+              className="px-4 py-2 bg-black text-white rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Set to {nextStatus}
+              {processing ? "Updating..." : `Set to ${nextStatus}`}
             </button>
           )}
         </div>
@@ -71,7 +88,7 @@ export default function AdminOrderDetail({ order }: Props) {
                 <div key={status} className="flex-1 text-center">
                   <div
                     className={`mx-auto w-8 h-8 rounded-full flex items-center justify-center 
-                      ${done ? "bg-black text-white" : "bg-gray-200"}`}
+                    ${done ? "bg-black text-white" : "bg-gray-200"}`}
                   >
                     {done ? "✓" : i + 1}
                   </div>
@@ -121,6 +138,7 @@ export default function AdminOrderDetail({ order }: Props) {
             ))}
           </div>
         </div>
+
       </div>
     </AppLayout>
   );

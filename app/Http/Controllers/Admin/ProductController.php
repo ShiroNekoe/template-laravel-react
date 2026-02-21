@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -51,26 +52,30 @@ class ProductController extends Controller
         }
 
 
-        public function update(Request $request, Product $product)
-        {
-            $data = $request->validate([
-                'name' => 'required',
-                'price' => 'required|integer',
-                'stock' => 'required|integer',
-                'description' => 'nullable',
-                'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
-            ]);
+      public function update(Request $request, Product $product)
+{
+    $data = $request->validate([
+        'name' => 'required|string',
+        'price' => 'required|numeric',
+        'stock' => 'required|integer',
+        'description' => 'nullable|string',
+        'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+    ]);
 
-            if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('products', 'public');
-                $data['image'] = $path;
-            }
+    if ($request->hasFile('image')) {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
 
-            $product->update($data);
+        $data['image'] = $request->file('image')->store('products', 'public');
+    }
 
-            return redirect()->route('admin.products.index');
+    $product->update($data);
 
-        }   
+    return redirect()
+        ->route('admin.products.index')
+        ->with('success', 'Produk berhasil diupdate');
+}
 
 
     public function destroy(Product $product)

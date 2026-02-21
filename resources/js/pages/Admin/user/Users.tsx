@@ -9,6 +9,7 @@ import AppLayout from "@/layouts/app-layout";
 import { Head, useForm, router } from "@inertiajs/react";
 import { useState } from "react";
 
+
 type User = {
   id: number;
   name: string;
@@ -83,39 +84,28 @@ export default function Users({ users }: Props) {
       header: "No HP",
       cell: ({ row }) => row.original.phone || "-",
     },
-    {
-      id: "actions",
-      header: "Aksi",
-      cell: ({ row }) => (
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => handleEdit(row.original)}
-          >
-            Edit
-          </Button>
-
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-red-600 border-red-200 hover:bg-red-50"
-            onClick={() =>
-              confirm("Yakin hapus user ini?") &&
-              router.delete(`/admin/users/${row.original.id}`)
-            }
-          >
-            Hapus
-          </Button>
-        </div>
-      ),
-    },
+ {
+  id: "actions",
+  header: "Aksi",
+  cell: ({ row }) => (
+    <button
+      className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+      onClick={() => router.visit(route("admin.users.show", row.original.id))}
+    >
+      Detail
+    </button>
+  ),
+}
+  
   ];
 
   return (
     <AppLayout
-      breadcrumbs={[{ title: "User Settings", href: "/admin/users" }]}
-    >
+  breadcrumbs={[
+    { title: "Dashboard", href: "/admin/dashboard" },
+    { title: "Users", href: "#" },
+  ]}
+>
       <Head title="Admin User Settings" />
 
       <div className="p-6 space-y-6">

@@ -116,7 +116,7 @@ Route::middleware(['auth', 'role:admin'])
             ->name('orders.updateStatus'); // <-- UPDATE STATUS
 
         Route::resource('/users', AdminUserController::class);
-
+        
 });
 
 /*

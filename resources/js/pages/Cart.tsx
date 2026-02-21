@@ -8,9 +8,10 @@ type CartItem = {
     id: number;
     name: string;
     price: number;
+    stock: number; // ⬅️ tambahin ini
     image?: string | null;
   };
-};
+};;
 
 export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
   const [loadingId, setLoadingId] = useState<number | null>(null);
@@ -117,13 +118,23 @@ export default function Cart({ cartItems }: { cartItems: CartItem[] }) {
                         {item.quantity}
                       </span>
 
-                      <button
-                        onClick={() => updateQty(item.id, item.quantity + 1)}
-                        disabled={loadingId === item.id}
-                        className="w-9 h-9 flex items-center justify-center rounded-xl border border-blue-200 bg-white hover:bg-blue-100 transition font-bold"
-                      >
-                        +
-                      </button>
+                   <button
+                    onClick={() => updateQty(item.id, item.quantity + 1)}
+                    disabled={
+                      loadingId === item.id ||
+                      item.quantity >= item.product.stock
+                    }
+                    className="w-9 h-9 flex items-center justify-center rounded-xl border border-blue-200 bg-white hover:bg-blue-100 transition font-bold disabled:opacity-40"
+                  >
+                    +
+                  </button>
+
+                   {item.quantity >= item.product.stock && (
+                        <p className="text-xs text-red-500 mt-1">
+                          Stok maksimal tercapai
+                        </p>
+                      )}
+                  
                     </div>
                   </div>
 
